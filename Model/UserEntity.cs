@@ -10,7 +10,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class UserEntity : IdentityUser
 {
    
-    public SpaceStation SpaceStation { get; set; }
+    public int? SpaceStationId { get; set; } // Foreign key, nullable
+    public virtual SpaceStation SpaceStation { get; set; } // Navigation property
     
    // public Role Role { get; set; }
 

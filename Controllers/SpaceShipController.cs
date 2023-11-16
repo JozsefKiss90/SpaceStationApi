@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SpaceShipAPI.Model.DTO.Ship;
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship;
@@ -35,13 +37,20 @@ public class SpaceShipController : ControllerBase
         return Ok(spaceShip);
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "User")]  
     public async Task<IActionResult> CreateAsync([FromBody] ShipDTO shipDTO)
     {
         if (shipDTO == null)
         {
             return BadRequest(); 
         }
+        
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("User is not authenticated.");
+        }
+
 
         var minerShip = new MinerShip
         {
@@ -52,7 +61,7 @@ public class SpaceShipController : ControllerBase
             ShieldEnergy = 0,
             DrillLevel = 0, 
             StorageLevel = 0,
-      
+            UserId = userId ,
         };
         
         minerShip.SpaceStation = null;  

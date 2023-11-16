@@ -1,38 +1,176 @@
+using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using SpaceshipAPI;
+using SpaceShipAPI.Database;
+using SpaceShipAPI.Services.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.IgnoreNullValues = true; // Ignore null values
-        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // Use camelCase for property names
-    });
-builder.Services.AddScoped<ISpaceShipRepository, SpaceShipRepository>();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<ISpaceShipRepository, SpaceShipRepository>();
-builder.Services.AddScoped<ISpaceStationRepository, SpaceStationRepository>();
-builder.Services.AddDbContext<DBContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+ConfigureServices(builder.Services);
 var app = builder.Build();
+ConfigurePipeline(app);
+AddRoles();
+AddAdmin();
+app.Run();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+void ConfigureServices(IServiceCollection services)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    /*services.AddControllers(options => 
+        options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);*/
+    services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.IgnoreNullValues = true; 
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; 
+        });
+    
+    services.AddEndpointsApiExplorer();
+    services.AddHttpClient();
+
+    ConfigureSwagger(services);
+    ConfigureIdentity(services);
+    ConfigureAuthentication(services);
+    services.AddScoped<ISpaceShipRepository, SpaceShipRepository>();
+    services.AddScoped<ISpaceStationRepository, SpaceStationRepository>();
+    services.AddScoped<IAuthService, AuthService>();
+    services.AddScoped<ITokenService, TokenService>();
+    services.AddDbContext<DBContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    services.AddDbContext<UserContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
 
-app.UseHttpsRedirection();
+void ConfigurePipeline(WebApplication app)
+{
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-app.UseAuthorization();
+    app.UseHttpsRedirection();
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.MapControllers();
+}
 
-app.MapControllers();
+void ConfigureSwagger(IServiceCollection services)
+{
+    builder.Services.AddSwaggerGen(option =>
+    {
+        option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+        option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            In = ParameterLocation.Header,
+            Description = "Please enter a valid token",
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            BearerFormat = "JWT",
+            Scheme = "Bearer"
+        });
+        option.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type=ReferenceType.SecurityScheme,
+                        Id="Bearer"
+                    }
+                },
+                new string[]{}
+            }
+        });
+    });
+}
 
-app.Run();
+void ConfigureIdentity(IServiceCollection services)
+{
+    builder.Services
+        .AddIdentityCore<UserEntity>(options =>
+        {
+            options.SignIn.RequireConfirmedAccount = false;
+            options.User.RequireUniqueEmail = true;
+            options.Password.RequireDigit = false;
+            options.Password.RequiredLength = 6;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireLowercase = false;
+        })
+        .AddRoles<IdentityRole>() 
+        .AddEntityFrameworkStores<UserContext>();
+}
+
+void ConfigureAuthentication(IServiceCollection services)
+{
+    builder.Services
+        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                ClockSkew = TimeSpan.Zero,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = "apiWithAuthBackend",
+                ValidAudience = "apiWithAuthBackend",
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes("!SomethingSecret!")
+                ),
+            };
+        });
+}
+
+void AddRoles()
+{
+    using var scope = app.Services.CreateScope(); // RoleManager is a scoped service, therefore we need a scope instance to access it
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    var tAdmin = CreateAdminRole(roleManager);
+    tAdmin.Wait();
+
+    var tUser = CreateUserRole(roleManager);
+    tUser.Wait();
+}
+
+async Task CreateAdminRole(RoleManager<IdentityRole> roleManager)
+{
+    await roleManager.CreateAsync(new IdentityRole("Admin")); //The role string should better be stored as a constant or a value in appsettings
+}
+
+async Task CreateUserRole(RoleManager<IdentityRole> roleManager)
+{
+    await roleManager.CreateAsync(new IdentityRole("User")); //The role string should better be stored as a constant or a value in appsettings
+}
+
+void AddAdmin()
+{
+    var tAdmin = CreateAdminIfNotExists();
+    tAdmin.Wait();
+}
+
+async Task CreateAdminIfNotExists()
+{
+    using var scope = app.Services.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
+    var adminInDb = await userManager.FindByEmailAsync("admin@admin.com");
+    if (adminInDb == null)
+    {
+        var admin = new UserEntity { UserName = "admin", Email = "admin@admin.com" };
+        var adminCreated = await userManager.CreateAsync(admin, "admin123");
+
+        if (adminCreated.Succeeded)
+        {
+            await userManager.AddToRoleAsync(admin, "Admin");
+        }
+    }
+}
