@@ -1,7 +1,6 @@
 ﻿using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship;
 
-
 namespace SpaceShipAPI.Model.DTO.Ship
 {
     public class ShipDTO
@@ -11,20 +10,21 @@ namespace SpaceShipAPI.Model.DTO.Ship
 
         public ShipColor Color { get;  set; }
         public ShipType Type { get;  set; }
-       // public long MissionId { get;  set; }
+       
+        public long MissionId { get;  set; }
 
         public ShipDTO(SpaceShip ship)
-            : this(ship.Id, ship.Name, ship.Color, GetShipType(ship))
+            : this(ship.Id, ship.Name, ship.Color, GetShipType(ship), GetCurrentMissionId(ship.CurrentMission))
         {
         }
 
-        public ShipDTO(long id, string name, ShipColor color, ShipType type)
+        public ShipDTO(long id, string name, ShipColor color, ShipType type, long missionId)
         {
             Id = id;
             Name = name;
             Color = color;
             Type = type;
-            
+            MissionId = missionId;
         }
         
         public ShipDTO()
