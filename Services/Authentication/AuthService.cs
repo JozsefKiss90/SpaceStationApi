@@ -65,7 +65,7 @@ public class AuthService : IAuthService
         }
 
         var roles = await _userManager.GetRolesAsync(managedUser);
-        string role = roles.FirstOrDefault(); // Get the first role, or null if no roles
+        string role = roles.FirstOrDefault(); 
         _logger.LogInformation($"User role: {role}");
         var accessToken = _tokenService.CreateToken(managedUser, role);
 

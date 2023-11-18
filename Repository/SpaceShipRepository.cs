@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SpaceShipAPI.Database;
 using SpaceShipAPI.Model.DTO.Ship;
 using SpaceshipAPI.Model.Ship;
 
 public class SpaceShipRepository : ISpaceShipRepository
 {
-    private readonly DBContext _context;
+    private readonly AppDbContext _context;
 
-    public SpaceShipRepository(DBContext context)
+    public SpaceShipRepository(AppDbContext context)
     {
         _context = context;
     }

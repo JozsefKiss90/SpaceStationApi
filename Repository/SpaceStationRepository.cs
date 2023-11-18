@@ -1,12 +1,13 @@
 ﻿using DefaultNamespace;
 using Microsoft.EntityFrameworkCore;
+using SpaceShipAPI.Database;
 using SpaceshipAPI.Spaceship.Model.Station;
 
 public class SpaceStationRepository : ISpaceStationRepository
 {
-    private readonly DBContext _context;
+    private readonly AppDbContext _context;
 
-    public SpaceStationRepository(DBContext context)
+    public SpaceStationRepository(AppDbContext context)
     {
         _context = context; 
     }

@@ -49,6 +49,8 @@ public class TokenService : ITokenService
 
             if (role != null)
             {
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
+
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 

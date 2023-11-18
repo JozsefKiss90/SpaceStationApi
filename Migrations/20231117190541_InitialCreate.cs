@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace SpaceShipAPI.Migrations.User
+namespace SpaceShipAPI.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -31,6 +31,7 @@ namespace SpaceShipAPI.Migrations.User
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
+                    SpaceStationId = table.Column<int>(type: "integer", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -157,6 +158,122 @@ namespace SpaceShipAPI.Migrations.User
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "spacestation",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    StorageLevel = table.Column<int>(type: "integer", nullable: false),
+                    HangarLevel = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_spacestation", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_spacestation_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "spaceship",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Color = table.Column<int>(type: "integer", nullable: false),
+                    EngineLevel = table.Column<int>(type: "integer", nullable: false),
+                    ShieldLevel = table.Column<int>(type: "integer", nullable: false),
+                    ShieldEnergy = table.Column<int>(type: "integer", nullable: false),
+                    SpaceStationId = table.Column<long>(type: "bigint", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_spaceship", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_spaceship_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_spaceship_spacestation_SpaceStationId",
+                        column: x => x.SpaceStationId,
+                        principalTable: "spacestation",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "minership",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false),
+                    DrillLevel = table.Column<int>(type: "integer", nullable: false),
+                    StorageLevel = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_minership", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_minership_spaceship_Id",
+                        column: x => x.Id,
+                        principalTable: "spaceship",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "scoutship",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false),
+                    ScannerLevel = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_scoutship", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_scoutship_spaceship_Id",
+                        column: x => x.Id,
+                        principalTable: "spaceship",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StoredResources",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SpaceStationId = table.Column<long>(type: "bigint", nullable: false),
+                    MinerShipId = table.Column<long>(type: "bigint", nullable: false),
+                    ResourceType = table.Column<string>(type: "text", nullable: false),
+                    Amount = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StoredResources", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StoredResources_minership_MinerShipId",
+                        column: x => x.MinerShipId,
+                        principalTable: "minership",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StoredResources_spacestation_SpaceStationId",
+                        column: x => x.SpaceStationId,
+                        principalTable: "spacestation",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -193,6 +310,32 @@ namespace SpaceShipAPI.Migrations.User
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_spaceship_SpaceStationId",
+                table: "spaceship",
+                column: "SpaceStationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_spaceship_UserId",
+                table: "spaceship",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_spacestation_UserId",
+                table: "spacestation",
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StoredResources_MinerShipId",
+                table: "StoredResources",
+                column: "MinerShipId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StoredResources_SpaceStationId",
+                table: "StoredResources",
+                column: "SpaceStationId");
         }
 
         /// <inheritdoc />
@@ -214,7 +357,22 @@ namespace SpaceShipAPI.Migrations.User
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "scoutship");
+
+            migrationBuilder.DropTable(
+                name: "StoredResources");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "minership");
+
+            migrationBuilder.DropTable(
+                name: "spaceship");
+
+            migrationBuilder.DropTable(
+                name: "spacestation");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

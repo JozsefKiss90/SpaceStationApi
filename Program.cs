@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -11,15 +12,19 @@ using SpaceShipAPI.Services.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Create a logger for the Program class
+var logger = builder.Services.BuildServiceProvider().GetService<ILogger<Program>>();
 ConfigureServices(builder.Services);
 var app = builder.Build();
 ConfigurePipeline(app);
 AddRoles();
 AddAdmin();
+
 app.Run();
 
 void ConfigureServices(IServiceCollection services)
 {
+    
     /*services.AddControllers(options => 
         options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);*/
     services.AddControllers()
@@ -31,7 +36,7 @@ void ConfigureServices(IServiceCollection services)
     
     services.AddEndpointsApiExplorer();
     services.AddHttpClient();
-
+    
     ConfigureSwagger(services);
     ConfigureIdentity(services);
     ConfigureAuthentication(services);
@@ -39,10 +44,18 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<ISpaceStationRepository, SpaceStationRepository>();
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<ITokenService, TokenService>();
-    services.AddDbContext<DBContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+   /* services.AddDbContext<DBContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
     services.AddDbContext<UserContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));*/
+    
+    services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    //// "DefaultConnection": "Host=localhost;Database=spaceship;Username=postgres;Password=postgres;Include Error Detail=true;"
+    ///     "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=spaceship;User Id=sa;Password=myStrong(!)Password;TrustServerCertificate=True;"
+
 }
 
 void ConfigurePipeline(WebApplication app)
@@ -105,7 +118,7 @@ void ConfigureIdentity(IServiceCollection services)
             options.Password.RequireLowercase = false;
         })
         .AddRoles<IdentityRole>() 
-        .AddEntityFrameworkStores<UserContext>();
+        .AddEntityFrameworkStores<AppDbContext>();
 }
 
 void ConfigureAuthentication(IServiceCollection services)

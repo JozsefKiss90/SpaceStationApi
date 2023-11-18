@@ -14,6 +14,4 @@ public class UserEntity : IdentityUser
     public virtual SpaceStation SpaceStation { get; set; } // Navigation property
     
    // public Role Role { get; set; }
-
-    // You can override any additional properties and methods specific to ASP.NET Identity as needed.
 }
