@@ -11,6 +11,6 @@ namespace SpaceShipAPI.Model.Ship
         public int StorageLevel { get; set; }
 
         [InverseProperty("MinerShip")]
-        public ICollection<StoredResource> StoredResources { get; set; }
+        public  Dictionary<ResourceType, int> StoredResources { get; set; }
     }
 }
