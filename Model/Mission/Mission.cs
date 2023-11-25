@@ -1,12 +1,9 @@
 ﻿using SpaceshipAPI;
-
-
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using SpaceshipAPI.Model.Ship;
 
+namespace SpaceShipAPI.Model.Mission;
 public abstract class Mission
 {
     [Key]
@@ -27,5 +24,5 @@ public abstract class Mission
     [ForeignKey("UserId")]
     public UserEntity User { get; set; }
     
-    //public ICollection<Event> Events { get; set; }
+    public List<Event> Events { get; set; }
 }

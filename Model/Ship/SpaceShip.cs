@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using SpaceShipAPI.Model;
+using SpaceShipAPI.Model.Mission;
 using SpaceshipAPI.Spaceship.Model.Station;
 
 namespace SpaceshipAPI.Model.Ship
@@ -28,6 +28,6 @@ namespace SpaceshipAPI.Model.Ship
         public UserEntity User { get; set; }
         
         [ForeignKey("CurrentMissionId")]
-        public Mission CurrentMission { get; set; }
+        public Mission? CurrentMission { get; set; }
     }
 }

@@ -1,13 +1,15 @@
-﻿using SpaceShipAPI.Service;
+﻿using SpaceShipAPI.Model.Exceptions;
+using SpaceShipAPI.Repository;
+using SpaceShipAPI.Service;
 
 namespace SpaceShipAPI.Model;
 
 public abstract class Upgradeable
 {
-    private readonly LevelService levelService;
+    private readonly ILevelService levelService;
     protected Level CurrentLevel;
 
-    protected Upgradeable(LevelService levelService, UpgradeableType type, int level)
+    protected Upgradeable(ILevelService levelService, UpgradeableType type, int level)
     {
         this.levelService = levelService;
         this.CurrentLevel = levelService.GetLevelByTypeAndLevel(type, level);
@@ -18,30 +20,34 @@ public abstract class Upgradeable
         return CurrentLevel.Max;
     }
     
-    
     public Dictionary<ResourceType, int> GetUpgradeCost()
     {
+        if (CurrentLevel == null)
+        {
+            throw new Exception("CurrentLevel is null");
+        }
+
         if (IsFullyUpgraded())
         {
-            throw new Exception("Already at max level");
-        }
-        else
-        {
-            int level = CurrentLevel.LevelValue;
-            UpgradeableType type = CurrentLevel.Type;
-            Level nextLevel = levelService.GetLevelByTypeAndLevel(type, level + 1);
+            throw new UpgradeNotAvailableException("Already at max level");        }
 
-            // Convert ICollection<LevelCost> to Dictionary<ResourceType, int>
-            return nextLevel.Costs.ToDictionary(cost => cost.Resource, cost => cost.Amount);
+        int level = CurrentLevel.LevelValue;
+
+        UpgradeableType type = CurrentLevel.Type;
+        Level nextLevel = levelService.GetLevelByTypeAndLevel(type, level + 1);
+
+        if (nextLevel == null)
+        {
+            throw new Exception("NextLevel is null");
         }
+
+        return nextLevel.Costs.ToDictionary(cost => cost.Resource, cost => cost.Amount);
     }
 
     public bool Upgrade()
     {
         if (IsFullyUpgraded())
-        {
-           // throw new UpgradeNotAvailableException("Already at max level");
-           throw new Exception("Already at max level");
+        { throw new Exception("Already at max level");
         }
         else
         {

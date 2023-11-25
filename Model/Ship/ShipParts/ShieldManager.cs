@@ -1,30 +1,31 @@
-﻿using SpaceShipAPI.Service;
+﻿using SpaceShipAPI.Repository;
+using SpaceShipAPI.Service;
 
 namespace SpaceShipAPI.Model.Ship.ShipParts;
 
 using SpaceShipAPI.Model;
 using System;
 
-public class ShieldManager : Upgradeable
+public class ShieldManager : Upgradeable 
 {
     private static readonly UpgradeableType TYPE = UpgradeableType.SHIELD;
     private int currentEnergy;
 
-    public ShieldManager(LevelService levelService, int currentLevel, int currentEnergy) 
+    public ShieldManager(ILevelService levelService, int currentLevel, int currentEnergy) 
         : base(levelService, TYPE, currentLevel)
     {
         if (currentEnergy < 0)
         {
             throw new ArgumentException("Shield energy can't be lower than 0");
         }
-        else if (currentEnergy > CurrentLevel.Effect)
+        if (currentEnergy > CurrentLevel.Effect) //line 21
         {
             throw new Exception($"Shield energy can't be higher than {CurrentLevel.Effect} at this level");
         }
         this.currentEnergy = currentEnergy;
     }
 
-    public ShieldManager(LevelService levelService) 
+    public ShieldManager(ILevelService levelService) 
         : base(levelService, TYPE, 1)
     {
         currentEnergy = CurrentLevel.Effect;

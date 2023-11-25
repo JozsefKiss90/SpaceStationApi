@@ -9,8 +9,8 @@ public class MinerShipDTO : ShipDetailDTO
     public DrillDTO Drill { get; }
     public ShipStorageDTO Storage { get; }
 
-    public MinerShipDTO(long id, string name, ShipColor color, ShipType type, Mission mission, EngineDTO engine, ShieldDTO shield, DrillDTO drill, ShipStorageDTO storage)
-        : base(id, name, color, type, mission, engine, shield)
+    public MinerShipDTO(long id, string name, ShipColor color, ShipType type, Model.Mission.Mission mission, EngineDTO engine, ShieldDTO shield, DrillDTO drill, ShipStorageDTO storage)
+        : base(id, name, color, type, mission, engine, shield) 
     {
         Drill = drill;
         Storage = storage;

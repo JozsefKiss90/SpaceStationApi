@@ -1,4 +1,5 @@
-﻿using SpaceShipAPI.Service;
+﻿using SpaceShipAPI.Repository;
+using SpaceShipAPI.Service;
 
 namespace SpaceShipAPI.Model.Ship.ShipParts;
 
@@ -6,12 +7,12 @@ public class DrillManager : Upgradeable
 {
     private static readonly UpgradeableType TYPE = UpgradeableType.DRILL;
 
-    public DrillManager(LevelService levelService, int currentLevel) 
+    public DrillManager(ILevelService levelService, int currentLevel) 
         : base(levelService, TYPE, currentLevel)
     {
     }
 
-    public DrillManager(LevelService levelService) 
+    public DrillManager(ILevelService levelService) 
         : this(levelService, 1)
     {
     }

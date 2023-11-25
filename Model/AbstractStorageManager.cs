@@ -1,4 +1,6 @@
-﻿using SpaceShipAPI.Service;
+﻿using SpaceShipAPI.Model.Exceptions;
+using SpaceShipAPI.Repository;
+using SpaceShipAPI.Service;
 
 namespace SpaceShipAPI.Model;
 
@@ -11,13 +13,13 @@ public abstract class AbstractStorageManager : Upgradeable
 {
     protected Dictionary<ResourceType, int> StoredResources { get; }
 
-    protected AbstractStorageManager(LevelService levelService, UpgradeableType type, int level, Dictionary<ResourceType, int> storedResources)
+    protected AbstractStorageManager(ILevelService levelService, UpgradeableType type, int level, Dictionary<ResourceType, int> storedResources)
         : base(levelService, type, level)
     {
         int totalResources = storedResources.Values.Sum();
         if (totalResources > CurrentLevel.Effect)
         {
-            throw new Exception($"Stored resources can't exceed {CurrentLevel.Effect} at this level");
+            throw new ResourceCapacityExceededException($"Stored resources can't exceed {CurrentLevel.Effect} at this level");
         }
         StoredResources = storedResources;
     }
@@ -41,11 +43,11 @@ public abstract class AbstractStorageManager : Upgradeable
     {
         if (quantity < 0)
         {
-            throw new Exception("Can't add negative resources.");
+            throw new NegativeResourceAdditionException();
         }
         if (quantity > GetCurrentAvailableStorageSpace())
         {
-            throw new Exception("Not enough storage space.");
+            throw new InsufficientStorageSpaceException();
         }
         StoredResources[resourceType] = StoredResources.GetValueOrDefault(resourceType) + quantity;
         return true;

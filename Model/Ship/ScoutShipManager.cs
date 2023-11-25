@@ -44,14 +44,14 @@ public class ScoutShipManager : SpaceShipManager
     public override ShipDetailDTO GetDetailedDTO()
     {
         CreateEngineIfNotExists();
-        CreateShieldIfNotExists();
+        CreateShieldIfNotExists(); 
         CreateScannerIfNotExists();
         return new ScoutShipDTO(
             scoutShip.Id,
             scoutShip.Name,
             scoutShip.Color,
             ShipType.SCOUT,
-            scoutShip.CurrentMission,
+            scoutShip.CurrentMission, 
             new EngineDTO(engine),
             new ShieldDTO(shield),
             new ScannerDTO(scanner)

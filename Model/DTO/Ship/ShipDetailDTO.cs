@@ -1,15 +1,14 @@
-﻿using SpaceShipAPI.Model.DTO.Ship;
-using SpaceShipAPI.Model.DTO.Ship.Part;
+﻿using SpaceShipAPI.Model.DTO.Ship.Part;
+using SpaceShipAPI.Model.Ship;
+namespace SpaceShipAPI.Model.DTO.Ship;
 
-namespace SpaceShipAPI.Model.Ship.ShipParts;
-
-public abstract class ShipDetailDTO : ShipDTO
+public abstract class ShipDetailDTO : ShipDTO 
 {
     public EngineDTO Engine { get; }
     public ShieldDTO Shield { get; }
 
-    public ShipDetailDTO(long id, string name, ShipColor color, ShipType type, Mission mission, EngineDTO engine, ShieldDTO shield)
-        : base(id, name, color, type, mission.Id)
+    public ShipDetailDTO(long id, string name, ShipColor color, ShipType type, Model.Mission.Mission mission, EngineDTO engine, ShieldDTO shield)
+        : base(id, name, color, type, mission.Id) 
     {
         Engine = engine;
         Shield = shield;

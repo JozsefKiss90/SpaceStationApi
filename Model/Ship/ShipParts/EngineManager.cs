@@ -1,4 +1,5 @@
-﻿using SpaceShipAPI.Service;
+﻿using SpaceShipAPI.Repository;
+using SpaceShipAPI.Service;
 
 namespace SpaceShipAPI.Model.Ship.ShipParts;
 
@@ -6,12 +7,12 @@ public class EngineManager : Upgradeable
 {
     private static readonly UpgradeableType TYPE = UpgradeableType.ENGINE;
 
-    public EngineManager(LevelService levelService, int currentLevel) 
+    public EngineManager(ILevelService levelService, int currentLevel) 
         : base(levelService, TYPE, currentLevel)
     {
     }
 
-    public EngineManager(LevelService levelService) 
+    public EngineManager(ILevelService levelService) 
         : this(levelService, 1)
     {
     }

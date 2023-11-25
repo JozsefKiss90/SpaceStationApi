@@ -1,6 +1,4 @@
-﻿namespace DefaultNamespace;
-
-public enum MissionType {
+﻿public enum MissionType {
     MINING,
     SCOUTING
 }

@@ -1,6 +1,4 @@
-﻿namespace DefaultNamespace;
-
-public enum EventType {
+﻿public enum EventType {
     START,
     ARRIVAL_AT_LOCATION,
     RETURNED_TO_STATION,

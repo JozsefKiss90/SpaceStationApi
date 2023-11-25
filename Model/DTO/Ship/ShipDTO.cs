@@ -16,7 +16,7 @@ namespace SpaceShipAPI.Model.DTO.Ship
         public ShipDTO(SpaceShip ship)
             : this(ship.Id, ship.Name, ship.Color, GetShipType(ship), GetCurrentMissionId(ship.CurrentMission))
         {
-        }
+        }  
 
         public ShipDTO(long id, string name, ShipColor color, ShipType type, long missionId)
         {
@@ -47,7 +47,7 @@ namespace SpaceShipAPI.Model.DTO.Ship
             }
         }
         
-        private static long GetCurrentMissionId(Mission mission)
+        private static long GetCurrentMissionId(Model.Mission.Mission mission)
         {
             return mission?.Id ?? 0L;
         }

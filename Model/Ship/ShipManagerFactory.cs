@@ -8,7 +8,6 @@ public class ShipManagerFactory
 {
     private readonly LevelService levelService;
 
-    // Assuming dependency injection is set up in your project
     public ShipManagerFactory(LevelService levelService)
     {
         this.levelService = levelService;

@@ -1,6 +1,7 @@
 ﻿using SpaceShipAPI.Model.DTO.Ship;
 using SpaceShipAPI.Model.DTO.Ship.Part;
 using SpaceShipAPI.Model.Ship.ShipParts;
+using SpaceShipAPI.Repository;
 
 namespace SpaceShipAPI.Model.Ship;
 
@@ -16,15 +17,15 @@ public class MinerShipManager : SpaceShipManager
     private ShipStorageManager storage;
     private DrillManager drill;
 
-    public MinerShipManager(LevelService levelService, MinerShip minerShip) 
+    public MinerShipManager(ILevelService levelService, MinerShip minerShip) 
         : base(levelService, minerShip)
     {
         this.minerShip = minerShip;
-    }
+    } 
 
-    public static MinerShip CreateNewMinerShip(LevelService levelService, string name, ShipColor color)
+    public static MinerShip CreateNewMinerShip(ILevelService levelService, string name, ShipColor color)
     {
-        MinerShip ship = new MinerShip
+        MinerShip ship = new MinerShip 
         {
             Name = name,
             Color = color,
@@ -40,23 +41,20 @@ public class MinerShipManager : SpaceShipManager
 
     public override ShipDetailDTO GetDetailedDTO()
     {
-        CreateEngineIfNotExists();
+        CreateEngineIfNotExists(); 
         CreateShieldIfNotExists();
         CreateDrillIfNotExists();
         CreateStorageIfNotExists();
-        return new MinerShipDTO(
-            minerShip.Id,
-            minerShip.Name,
-            minerShip.Color,
-            ShipType.MINER,
-            minerShip.CurrentMission,
-            new EngineDTO(engine),
-            new ShieldDTO(shield),
-            new DrillDTO(drill),
-            new ShipStorageDTO(storage));
-    }
 
-    // Other methods...
+        var engineDto = new EngineDTO(engine);
+        var shieldDto = new ShieldDTO(shield);
+        var drillDto = new DrillDTO(drill);
+        var storageDto = new ShipStorageDTO(storage);
+
+        return new MinerShipDTO(minerShip.Id, minerShip.Name, minerShip.Color, ShipType.MINER, 
+            minerShip.CurrentMission, engineDto, shieldDto, drillDto, storageDto);
+    }
+    
 
     public override HashSet<ShipPart> GetPartTypes()
     {
@@ -83,6 +81,21 @@ public class MinerShipManager : SpaceShipManager
                 throw new Exception("No such part on this ship");
         }
     }
+    
+    public int GetDrillEfficiency() {
+        CreateDrillIfNotExists();
+        return drill.Efficiency;
+    }
+    
+    public int GetEmptyStorageSpace() {
+        CreateStorageIfNotExists();
+        return storage.GetCurrentAvailableStorageSpace();
+    }
+    
+    public bool AddResourceToStorage(ResourceType resourceType, int amount) {
+        CreateStorageIfNotExists();
+        return storage.AddResource(resourceType, amount);
+    }
 
     public override bool UpgradePart(ShipPart part)
     {
@@ -106,7 +119,7 @@ public class MinerShipManager : SpaceShipManager
                 minerShip.DrillLevel = drill.GetCurrentLevel();
                 break;
             case ShipPart.STORAGE:
-                CreateStorageIfNotExists();
+                CreateStorageIfNotExists(); 
                 storage.Upgrade();
                 minerShip.StorageLevel = storage.GetCurrentLevel();
                 break;

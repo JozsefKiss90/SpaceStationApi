@@ -4,7 +4,7 @@ using SpaceShipAPI.Repository;
 
 namespace SpaceShipAPI.Service
 {
-    public class LevelService
+    public class LevelService : ILevelService
     {
         private readonly ILevelRepository levelRepository;
 
@@ -18,7 +18,7 @@ namespace SpaceShipAPI.Service
             return Enum.GetValues(typeof(UpgradeableType)).Cast<UpgradeableType>().ToList();
         }
 
-        public Level GetLevelByTypeAndLevel(UpgradeableType type, int level)
+        public virtual  Level GetLevelByTypeAndLevel(UpgradeableType type, int level)
         {
             return levelRepository.GetLevelByTypeAndLevel(type, level)
                    ?? throw new ArgumentException($"{type} has no level {level}.");

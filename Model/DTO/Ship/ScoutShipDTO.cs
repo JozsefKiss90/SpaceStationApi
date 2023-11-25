@@ -8,7 +8,7 @@ public class ScoutShipDTO : ShipDetailDTO
 {
     public ScannerDTO Scanner { get; }
 
-    public ScoutShipDTO(long id, string name, ShipColor color, ShipType type, Mission mission, EngineDTO engine, ShieldDTO shield, ScannerDTO scanner)
+    public ScoutShipDTO(long id, string name, ShipColor color, ShipType type, Model.Mission.Mission mission, EngineDTO engine, ShieldDTO shield, ScannerDTO scanner)
         : base(id, name, color, type, mission, engine, shield)
     {
         Scanner = scanner;
