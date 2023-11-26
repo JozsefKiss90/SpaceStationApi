@@ -11,8 +11,8 @@ public class ShieldManager : Upgradeable
     private static readonly UpgradeableType TYPE = UpgradeableType.SHIELD;
     private int currentEnergy;
 
-    public ShieldManager(ILevelService levelService, int currentLevel, int currentEnergy) 
-        : base(levelService, TYPE, currentLevel)
+    public ShieldManager(ILevelRepository levelRepository, int currentLevel, int currentEnergy) 
+        : base(levelRepository, TYPE, currentLevel)
     {
         if (currentEnergy < 0)
         {
@@ -25,8 +25,8 @@ public class ShieldManager : Upgradeable
         this.currentEnergy = currentEnergy;
     }
 
-    public ShieldManager(ILevelService levelService) 
-        : base(levelService, TYPE, 1)
+    public ShieldManager(ILevelRepository levelRepository) 
+        : base(levelRepository, TYPE, 1)
     {
         currentEnergy = CurrentLevel.Effect;
     }

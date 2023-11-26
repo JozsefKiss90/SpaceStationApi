@@ -1,23 +1,30 @@
-﻿
-using SpaceShipAPI.Model;  
+﻿using SpaceShipAPI.DTO;
+
+namespace SpaceShipAPI.Repository;
+
+using SpaceShipAPI.Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace SpaceShipAPI.Repository
+public interface ILevelRepository
 {
-    public interface ILevelRepository
-    {
-        Level GetLevelByTypeAndLevel(UpgradeableType type, int level);
+    List<UpgradeableType> GetLevelTypes();
 
-        IEnumerable<Level> GetLevelsByType(UpgradeableType type);
+    Level GetLevelByTypeAndLevel(UpgradeableType type, int level);
+    Level GetLevelByTypeAndMax(UpgradeableType type, bool isMax);
 
-        Level GetLevelByTypeAndMax(UpgradeableType type, bool isMax);
+    List<LevelDTO> GetLevelsByType(UpgradeableType type);
 
-        Level FindById(long id);
+    LevelDTO UpdateLevelById(long id, NewLevelDTO newLevelDTO);
 
-        void Save(Level level);
+    LevelDTO AddNewLevel(NewLevelDTO newLevelDTO);
 
-        void Delete(Level level);
-    }
+    bool DeleteLastLevelOfType(UpgradeableType type);
+    
+    Level FindById(long id);
+
+    void Save(Level level);
+
+    void Delete(Level level);
 }
+

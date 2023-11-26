@@ -4,11 +4,11 @@ using SpaceShipAPI.Repository;
 
 namespace SpaceShipAPI.Service
 {
-    public class LevelService : ILevelService
+    public class LevelRepository  : ILevelRepository
     {
-        private readonly ILevelRepository levelRepository;
+        private readonly ILevelRepository levelRepository; 
 
-        public LevelService(ILevelRepository levelRepository)
+        public LevelRepository (ILevelRepository levelRepository)
         {
             this.levelRepository = levelRepository;
         }
@@ -24,11 +24,14 @@ namespace SpaceShipAPI.Service
                    ?? throw new ArgumentException($"{type} has no level {level}.");
         }
 
+        public Level GetLevelByTypeAndMax(UpgradeableType type, bool isMax)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<LevelDTO> GetLevelsByType(UpgradeableType type)
         {
-            return levelRepository.GetLevelsByType(type)
-                   .Select(level => new LevelDTO(level))
-                   .ToList();
+            return levelRepository.GetLevelsByType(type);
         }
 
         public LevelDTO UpdateLevelById(long id, NewLevelDTO newLevelDTO)
@@ -62,26 +65,21 @@ namespace SpaceShipAPI.Service
                     { 
                         Resource = kv.Key, 
                         Amount = kv.Value
-                        // LevelId is not set here
                     })),
                 Max = true
             };
 
-            // Update previous max level if it exists
             if (prevMaxLevel != null)
             {
                 prevMaxLevel.Max = false;
                 levelRepository.Save(prevMaxLevel);
             }
 
-            // Save newMaxLevel to the database
             levelRepository.Save(newMaxLevel);
 
-            // Return the DTO, now newMaxLevel has an Id assigned by the database
             return new LevelDTO(newMaxLevel);
         }
-
-
+        
         public bool DeleteLastLevelOfType(UpgradeableType type)
         {
             var maxLevel = levelRepository.GetLevelByTypeAndMax(type, true)
@@ -96,6 +94,21 @@ namespace SpaceShipAPI.Service
             levelRepository.Delete(maxLevel);
             levelRepository.Save(newMaxLevel);
             return true;
+        }
+
+        public Level FindById(long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Save(Level level)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete(Level level)
+        {
+            throw new NotImplementedException();
         }
     }
 }

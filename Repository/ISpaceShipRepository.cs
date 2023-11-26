@@ -8,6 +8,8 @@ public interface ISpaceShipRepository : IDisposable
 {
     Task<IEnumerable<ShipDTO>> GetAllAsync();
     Task<ShipDTO> GetByIdAsync(long id);
+    Task<IEnumerable<ShipDTO>> GetByStationIdAsync(long stationId); // Added method
+
     Task CreateAsync(SpaceShip spaceShip);
     Task UpdateAsync(SpaceShip spaceShip);
     Task DeleteAsync(long id);

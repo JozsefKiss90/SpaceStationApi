@@ -6,13 +6,13 @@ namespace SpaceShipAPI.Model;
 
 public abstract class Upgradeable
 {
-    private readonly ILevelService levelService;
+    private readonly ILevelRepository levelRepository;
     protected Level CurrentLevel;
 
-    protected Upgradeable(ILevelService levelService, UpgradeableType type, int level)
+    protected Upgradeable(ILevelRepository levelRepository, UpgradeableType type, int level)
     {
-        this.levelService = levelService;
-        this.CurrentLevel = levelService.GetLevelByTypeAndLevel(type, level);
+        this.levelRepository = levelRepository;
+        this.CurrentLevel = levelRepository.GetLevelByTypeAndLevel(type, level);
     }
 
     public bool IsFullyUpgraded()
@@ -34,7 +34,7 @@ public abstract class Upgradeable
         int level = CurrentLevel.LevelValue;
 
         UpgradeableType type = CurrentLevel.Type;
-        Level nextLevel = levelService.GetLevelByTypeAndLevel(type, level + 1);
+        Level nextLevel = levelRepository.GetLevelByTypeAndLevel(type, level + 1);
 
         if (nextLevel == null)
         {
@@ -53,7 +53,7 @@ public abstract class Upgradeable
         {
             int level = CurrentLevel.LevelValue;
             UpgradeableType type = CurrentLevel.Type;
-            CurrentLevel = levelService.GetLevelByTypeAndLevel(type, level + 1);
+            CurrentLevel = levelRepository.GetLevelByTypeAndLevel(type, level + 1);
             Console.WriteLine(CurrentLevel.Effect);
             return true;
         }

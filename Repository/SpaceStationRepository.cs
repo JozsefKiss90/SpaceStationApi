@@ -1,6 +1,8 @@
 ﻿using DefaultNamespace;
 using Microsoft.EntityFrameworkCore;
+using SpaceshipAPI;
 using SpaceShipAPI.Database;
+using SpaceShipAPI.Model.DTO;
 using SpaceshipAPI.Spaceship.Model.Station;
 
 public class SpaceStationRepository : ISpaceStationRepository
@@ -26,8 +28,7 @@ public class SpaceStationRepository : ISpaceStationRepository
             storage: null
         ));
     }
-
-
+    
     public async Task<SpaceStationDTO> GetByIdAsync(long id)
     {
         var spaceStation = await _context.SpaceStation
@@ -45,6 +46,19 @@ public class SpaceStationRepository : ISpaceStationRepository
             ): null;
     }
 
+    public async Task<SpaceStationDataDTO> GetByUserAsync(UserEntity user)
+    {
+        var spaceStation = await _context.SpaceStation
+            .FirstOrDefaultAsync(s => s.User == user);
+
+        if (spaceStation == null)
+            return null;
+
+        return new SpaceStationDataDTO
+        (
+            spaceStation
+        );
+    }
     public async Task CreateAsync(SpaceStation spaceStation)
     {
         _context.SpaceStation.Add(spaceStation);

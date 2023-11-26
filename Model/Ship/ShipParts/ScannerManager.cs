@@ -7,8 +7,8 @@ public class ScannerManager : Upgradeable
 {
     private static readonly UpgradeableType TYPE = UpgradeableType.SCANNER;
 
-    public ScannerManager(ILevelService levelService, int level) 
-        : base(levelService, TYPE, level)
+    public ScannerManager(ILevelRepository levelRepository, int level) 
+        : base(levelRepository, TYPE, level)
     {
     }
 

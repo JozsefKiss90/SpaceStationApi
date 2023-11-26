@@ -21,6 +21,5 @@ public class StoredResource
     public MinerShip MinerShip { get; set; }
     public ResourceType ResourceType { get; set; }
     
-    
     public int Amount { get; set; }
 }

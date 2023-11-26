@@ -1,6 +1,7 @@
 ﻿using SpaceShipAPI.Model.DTO.Ship;
 using SpaceShipAPI.Model.DTO.Ship.Part;
 using SpaceShipAPI.Model.Ship.ShipParts;
+using SpaceShipAPI.Repository;
 using SpaceShipAPI.Service;
 
 namespace SpaceShipAPI.Model.Ship;
@@ -15,13 +16,13 @@ public class ScoutShipManager : SpaceShipManager
     private readonly ScoutShip scoutShip;
     private ScannerManager scanner;
 
-    public ScoutShipManager(LevelService levelService, ScoutShip scoutShip) 
-        : base(levelService, scoutShip)
+    public ScoutShipManager(ILevelRepository levelRepository, ScoutShip scoutShip) 
+        : base(levelRepository, scoutShip)
     {
         this.scoutShip = scoutShip;
     }
 
-    public static ScoutShip CreateNewScoutShip(LevelService levelService, string name, ShipColor color)
+    public static ScoutShip CreateNewScoutShip(ILevelRepository levelRepository, string name, ShipColor color)
     {
         ScoutShip ship = new ScoutShip
         {
@@ -29,7 +30,7 @@ public class ScoutShipManager : SpaceShipManager
             Color = color,
             EngineLevel = 1,
             ShieldLevel = 1,
-            ShieldEnergy = new ShieldManager(levelService, 1, 0).GetMaxEnergy(),
+            ShieldEnergy = new ShieldManager(levelRepository, 1, 0).GetMaxEnergy(),
             ScannerLevel = 1
         };
         return ship;
@@ -123,7 +124,7 @@ public class ScoutShipManager : SpaceShipManager
     {
         if (scanner == null)
         {
-            scanner = new ScannerManager(levelService, scoutShip.ScannerLevel);
+            scanner = new ScannerManager(levelRepository, scoutShip.ScannerLevel);
         }
     }
 }

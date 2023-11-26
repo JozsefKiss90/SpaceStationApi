@@ -9,14 +9,14 @@ namespace SpaceShipAPI.Model.Ship;
 
 public abstract class SpaceShipManager
 {
-    protected readonly ILevelService levelService;
+    protected readonly ILevelRepository levelRepository;
     protected readonly SpaceShip spaceShip;
     protected ShieldManager shield;
     protected EngineManager engine;
 
-    protected SpaceShipManager(ILevelService levelService, SpaceShip spaceShip)
+    protected SpaceShipManager(ILevelRepository levelRepository, SpaceShip spaceShip)
     {
-        this.levelService = levelService;
+        this.levelRepository = levelRepository;
         this.spaceShip = spaceShip;
     }
 
@@ -78,7 +78,7 @@ public abstract class SpaceShipManager
     {
         if (shield == null)
         {
-            shield = new ShieldManager(levelService, spaceShip.ShieldLevel, spaceShip.ShieldEnergy);
+            shield = new ShieldManager(levelRepository, spaceShip.ShieldLevel, spaceShip.ShieldEnergy);
         }
     }
 
@@ -86,7 +86,7 @@ public abstract class SpaceShipManager
     {
         if (engine == null)
         {
-            engine = new EngineManager(levelService, spaceShip.EngineLevel);
+            engine = new EngineManager(levelRepository, spaceShip.EngineLevel);
         }
     }
 

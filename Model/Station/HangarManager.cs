@@ -1,0 +1,76 @@
+﻿using SpaceshipAPI.Model.Ship;
+using SpaceShipAPI.Repository;
+using SpaceShipAPI.Service;
+
+namespace SpaceshipAPI.Spaceship.Model.Station;
+
+using SpaceShipAPI.Model;
+using SpaceShipAPI.Model.Exceptions;
+using System;
+using System.Collections.Generic;
+
+public class HangarManager : Upgradeable
+{
+    private static readonly UpgradeableType Type = UpgradeableType.HANGAR;
+    private readonly HashSet<SpaceShip> shipSet;
+
+    public HangarManager(ILevelRepository levelRepository, int currentLevel, HashSet<SpaceShip> shipSet) 
+        : base(levelRepository, Type, currentLevel)
+    {
+        if (shipSet.Count > CurrentLevel.Effect)
+        {
+            throw new Exception($"Ships in hangar can't exceed {CurrentLevel.Effect} at this level.");
+        }
+        this.shipSet = shipSet;
+    }
+
+    public HangarManager(ILevelRepository levelRepository) 
+        : this(levelRepository, 1, new HashSet<SpaceShip>())
+    {
+    }
+
+    public int GetCurrentCapacity()
+    {
+        return CurrentLevel.Effect;
+    }
+
+    public int GetCurrentAvailableDocks()
+    {
+        return GetCurrentCapacity() - shipSet.Count;
+    }
+
+    public bool AddShip(SpaceShip ship)
+    {
+        if (GetCurrentAvailableDocks() > 0)
+        {
+            return shipSet.Add(ship);
+        }
+        throw new Exception("No more docks available");
+    }
+
+    public bool RemoveShip(SpaceShip ship)
+    {
+        return shipSet.Remove(ship);
+    }
+
+    public HashSet<SpaceShip> GetAllShips()
+    {
+        return new HashSet<SpaceShip>(shipSet);
+    }
+
+    public bool HasShipAvailable(SpaceShip ship)
+    {
+        if (!shipSet.Contains(ship))
+        {
+            throw new Exception("No such ship in storage");
+        }
+        else if (ship.CurrentMission != null)
+        {
+            throw new Exception("Ship is on a mission");
+        }
+        else
+        {
+            return true;
+        }
+    }
+}
