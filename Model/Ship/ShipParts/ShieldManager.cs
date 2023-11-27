@@ -1,5 +1,4 @@
-﻿using SpaceShipAPI.Repository;
-using SpaceShipAPI.Service;
+﻿using SpaceShipAPI.Services;
 
 namespace SpaceShipAPI.Model.Ship.ShipParts;
 
@@ -11,8 +10,8 @@ public class ShieldManager : Upgradeable
     private static readonly UpgradeableType TYPE = UpgradeableType.SHIELD;
     private int currentEnergy;
 
-    public ShieldManager(ILevelRepository levelRepository, int currentLevel, int currentEnergy) 
-        : base(levelRepository, TYPE, currentLevel)
+    public ShieldManager(ILevelService levelService, int currentLevel, int currentEnergy) 
+        : base(levelService, TYPE, currentLevel)
     {
         if (currentEnergy < 0)
         {
@@ -25,8 +24,8 @@ public class ShieldManager : Upgradeable
         this.currentEnergy = currentEnergy;
     }
 
-    public ShieldManager(ILevelRepository levelRepository) 
-        : base(levelRepository, TYPE, 1)
+    public ShieldManager(ILevelService levelService) 
+        : base(levelService, TYPE, 1)
     {
         currentEnergy = CurrentLevel.Effect;
     }

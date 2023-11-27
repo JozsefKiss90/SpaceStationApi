@@ -11,10 +11,10 @@ public class AppDbContext : IdentityDbContext<UserEntity>
 {
     public DbSet<MinerShip> MinerShips { get; set; }
     public DbSet<ScoutShip> ScoutShips { get; set; }
-
+    
     public DbSet<SpaceStation> SpaceStation { get; set; }
     public DbSet<StoredResource> StoredResources { get; set; }
-
+    public DbSet<Level> Levels { get; set; }
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
     {

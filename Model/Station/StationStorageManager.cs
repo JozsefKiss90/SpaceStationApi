@@ -1,6 +1,6 @@
 ﻿using SpaceShipAPI;
 using SpaceShipAPI.Repository;
-using SpaceShipAPI.Service;
+using SpaceShipAPI.Services;
 
 namespace SpaceshipAPI.Spaceship.Model.Station;
 
@@ -11,13 +11,13 @@ public class StationStorageManager : AbstractStorageManager
 {
     private static readonly UpgradeableType Type = UpgradeableType.STATION_STORAGE;
 
-    public StationStorageManager(ILevelRepository levelRepository, int currentLevel, Dictionary<ResourceType, int> storedResources) 
-        : base(levelRepository, Type, currentLevel, storedResources)
+    public StationStorageManager(ILevelService levelService, int currentLevel, Dictionary<ResourceType, int> storedResources) 
+        : base(levelService, Type, currentLevel, storedResources)
     {
     }
 
-    public StationStorageManager(ILevelRepository levelRepository) 
-        : this(levelRepository, 1, new Dictionary<ResourceType, int>())
+    public StationStorageManager(ILevelService levelService) 
+        : this(levelService, 1, new Dictionary<ResourceType, int>())
     {
     }
 }

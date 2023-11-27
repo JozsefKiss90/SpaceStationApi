@@ -1,6 +1,5 @@
 ﻿using SpaceshipAPI.Model.Ship;
-using SpaceShipAPI.Repository;
-using SpaceShipAPI.Service;
+using SpaceShipAPI.Services;
 
 namespace SpaceshipAPI.Spaceship.Model.Station;
 
@@ -14,8 +13,8 @@ public class HangarManager : Upgradeable
     private static readonly UpgradeableType Type = UpgradeableType.HANGAR;
     private readonly HashSet<SpaceShip> shipSet;
 
-    public HangarManager(ILevelRepository levelRepository, int currentLevel, HashSet<SpaceShip> shipSet) 
-        : base(levelRepository, Type, currentLevel)
+    public HangarManager(ILevelService levelService, int currentLevel, HashSet<SpaceShip> shipSet) 
+        : base(levelService, Type, currentLevel)
     {
         if (shipSet.Count > CurrentLevel.Effect)
         {
@@ -24,8 +23,8 @@ public class HangarManager : Upgradeable
         this.shipSet = shipSet;
     }
 
-    public HangarManager(ILevelRepository levelRepository) 
-        : this(levelRepository, 1, new HashSet<SpaceShip>())
+    public HangarManager(ILevelService levelService) 
+        : this(levelService, 1, new HashSet<SpaceShip>())
     {
     }
 

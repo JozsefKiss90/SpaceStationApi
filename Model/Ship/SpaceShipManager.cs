@@ -2,6 +2,7 @@
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship.ShipParts;
 using SpaceShipAPI.Repository;
+using SpaceShipAPI.Services;
 using MissionNS = SpaceShipAPI.Model.Mission;
 
 namespace SpaceShipAPI.Model.Ship;
@@ -9,14 +10,14 @@ namespace SpaceShipAPI.Model.Ship;
 
 public abstract class SpaceShipManager
 {
-    protected readonly ILevelRepository levelRepository;
+    protected readonly ILevelService levelService;
     protected readonly SpaceShip spaceShip;
     protected ShieldManager shield;
     protected EngineManager engine;
 
-    protected SpaceShipManager(ILevelRepository levelRepository, SpaceShip spaceShip)
+    protected SpaceShipManager(ILevelService levelService, SpaceShip spaceShip)
     {
-        this.levelRepository = levelRepository;
+        this.levelService = levelService;
         this.spaceShip = spaceShip;
     }
 
@@ -78,7 +79,7 @@ public abstract class SpaceShipManager
     {
         if (shield == null)
         {
-            shield = new ShieldManager(levelRepository, spaceShip.ShieldLevel, spaceShip.ShieldEnergy);
+            shield = new ShieldManager(levelService, spaceShip.ShieldLevel, spaceShip.ShieldEnergy);
         }
     }
 
@@ -86,7 +87,7 @@ public abstract class SpaceShipManager
     {
         if (engine == null)
         {
-            engine = new EngineManager(levelRepository, spaceShip.EngineLevel);
+            engine = new EngineManager(levelService, spaceShip.EngineLevel);
         }
     }
 

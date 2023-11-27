@@ -1,6 +1,6 @@
 ﻿using SpaceShipAPI.Model.Exceptions;
 using SpaceShipAPI.Repository;
-using SpaceShipAPI.Service;
+using SpaceShipAPI.Services;
 
 namespace SpaceShipAPI.Model;
 
@@ -13,8 +13,8 @@ public abstract class AbstractStorageManager : Upgradeable
 {
     protected Dictionary<ResourceType, int> StoredResources { get; }
 
-    protected AbstractStorageManager(ILevelRepository levelRepository, UpgradeableType type, int level, Dictionary<ResourceType, int> storedResources)
-        : base(levelRepository, type, level)
+    protected AbstractStorageManager(ILevelService levelService, UpgradeableType type, int level, Dictionary<ResourceType, int> storedResources)
+        : base(levelService, type, level)
     {
         int totalResources = storedResources.Values.Sum();
         if (totalResources > CurrentLevel.Effect)

@@ -1,17 +1,16 @@
 ﻿using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Repository;
+using SpaceShipAPI.Services;
 
 namespace SpaceShipAPI.Model.Ship;
 
-using SpaceShipAPI.Service;
-
 public class ShipManagerFactory
 {
-    private readonly ILevelRepository levelRepository;
+    private readonly ILevelService levelService;
 
-    public ShipManagerFactory(ILevelRepository levelRepository)
+    public ShipManagerFactory(ILevelService levelService)
     {
-        this.levelRepository = levelRepository;
+        this.levelService = levelService;
     }
 
     public SpaceShipManager GetSpaceShipManager(SpaceShip ship)
@@ -19,10 +18,10 @@ public class ShipManagerFactory
         switch (ship)
         {
             case MinerShip minerShip:
-                return new MinerShipManager(levelRepository, minerShip);
+                return new MinerShipManager(levelService, minerShip);
 
             case ScoutShip scoutShip:
-                return new ScoutShipManager(levelRepository, scoutShip);
+                return new ScoutShipManager(levelService, scoutShip);
 
             default:
                 throw new ArgumentException("This ship type is not supported.");

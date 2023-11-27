@@ -1,18 +1,18 @@
 ﻿using SpaceShipAPI.Model.Exceptions;
 using SpaceShipAPI.Repository;
-using SpaceShipAPI.Service;
+using SpaceShipAPI.Services;
 
 namespace SpaceShipAPI.Model;
 
 public abstract class Upgradeable
 {
-    private readonly ILevelRepository levelRepository;
+    private readonly ILevelService levelService;
     protected Level CurrentLevel;
 
-    protected Upgradeable(ILevelRepository levelRepository, UpgradeableType type, int level)
+    protected Upgradeable(ILevelService levelService, UpgradeableType type, int level)
     {
-        this.levelRepository = levelRepository;
-        this.CurrentLevel = levelRepository.GetLevelByTypeAndLevel(type, level);
+        this.levelService = levelService;
+        this.CurrentLevel = levelService.GetLevelByTypeAndLevel(type, level);
     }
 
     public bool IsFullyUpgraded()
@@ -34,7 +34,7 @@ public abstract class Upgradeable
         int level = CurrentLevel.LevelValue;
 
         UpgradeableType type = CurrentLevel.Type;
-        Level nextLevel = levelRepository.GetLevelByTypeAndLevel(type, level + 1);
+        Level nextLevel = levelService.GetLevelByTypeAndLevel(type, level + 1);
 
         if (nextLevel == null)
         {
@@ -53,7 +53,7 @@ public abstract class Upgradeable
         {
             int level = CurrentLevel.LevelValue;
             UpgradeableType type = CurrentLevel.Type;
-            CurrentLevel = levelRepository.GetLevelByTypeAndLevel(type, level + 1);
+            CurrentLevel = levelService.GetLevelByTypeAndLevel(type, level + 1);
             Console.WriteLine(CurrentLevel.Effect);
             return true;
         }

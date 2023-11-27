@@ -5,16 +5,65 @@ namespace SpaceShipAPI.Model.Mission;
 
 public class ScoutingMissionManager : MissionManager
 {
-    private readonly LocationDataGenerator locationDataGenerator;
+    private LocationDataGenerator locationDataGenerator;
 
-    public ScoutingMissionManager(Mission mission, Random random, SpaceShipManager spaceShipManager) 
+    public ScoutingMissionManager(Mission mission, Random random, SpaceShipManager spaceShipManager, LocationDataGenerator locationDataGenerator) 
         : base(mission, random, spaceShipManager)
     {
+        this.locationDataGenerator = locationDataGenerator;
     }
 
     public override MissionDetailDTO GetDetailedDTO()
     {
         return new ScoutingMissionDTO((ScoutingMission)mission);
+    }
+    
+    public static ScoutingMission StartScoutingMission(ScoutShipManager scoutShipManager, int distance, long activityDurationInSecs, ResourceType targetResource, bool prioritizingDistance)
+        {
+            if (!scoutShipManager.IsAvailable())
+            {
+                throw new InvalidOperationException("This ship is already on a mission");
+            }
+            if (distance <= 0)
+            {
+                throw new ArgumentException("Distance can't be 0 or less");
+            }
+            if (activityDurationInSecs <= 0)
+            {
+                throw new ArgumentException("Activity duration can't be 0 or less");
+            }
+            if (targetResource == null)
+            {
+                throw new ArgumentException("Target resource can't be null");
+            }
+
+            var startTime = DateTime.UtcNow; // Using UtcNow instead of LocalDateTime.now(clock) from Java
+            long travelDurationInSecs = CalculateTravelDurationInSecs(scoutShipManager, distance);
+            long approxMissionDurationInSecs = travelDurationInSecs * 2 + activityDurationInSecs;
+
+            var mission = new ScoutingMission
+            {
+                StartTime = startTime,
+                ActivityDurationInSecs = activityDurationInSecs,
+                TravelDurationInSecs = travelDurationInSecs,
+                CurrentStatus = MissionStatus.EN_ROUTE,
+                CurrentObjectiveTime = startTime.AddSeconds(travelDurationInSecs),
+                ApproxEndTime = startTime.AddSeconds(approxMissionDurationInSecs),
+                Ship = scoutShipManager.GetShip(),
+                User = scoutShipManager.GetShip().User,
+                TargetResource = targetResource,
+                Distance = distance,
+                PrioritizingDistance = prioritizingDistance
+            };
+
+            scoutShipManager.SetCurrentMission(mission);
+            return mission;
+        }
+    
+    private static long CalculateTravelDurationInSecs(ScoutShipManager scoutShipManager, int distance)
+    {
+        var speed = scoutShipManager.GetSpeed();
+        return (long)Math.Ceiling(distance / (speed / 3600.0)); // Convert speed to seconds
     }
 
     public override bool AbortMission()

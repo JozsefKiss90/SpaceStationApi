@@ -1,114 +1,54 @@
 ﻿using SpaceShipAPI.Model;
-using SpaceShipAPI.DTO;
+using System.Collections.Generic;
+using System.Linq;
+using SpaceShipAPI.Database;
 using SpaceShipAPI.Repository;
 
-namespace SpaceShipAPI.Service
+public class LevelRepository : ILevelRepository
 {
-    public class LevelRepository  : ILevelRepository
+    private readonly AppDbContext _context;
+
+    public LevelRepository(AppDbContext context)
     {
-        private readonly ILevelRepository levelRepository; 
+        _context = context;
+    }
+    
+    public Level GetLevelByTypeAndLevel(UpgradeableType type, int level)
+    {
+        return _context.Levels.FirstOrDefault(l => l.Type == type && l.LevelValue == level);
+    }
 
-        public LevelRepository (ILevelRepository levelRepository)
+    public IEnumerable<Level> GetLevelsByType(UpgradeableType type)
+    {
+        return _context.Levels.Where(l => l.Type == type).ToList();
+    }
+
+    public Level GetLevelByTypeAndMax(UpgradeableType type, bool isMax)
+    {
+        return _context.Levels.FirstOrDefault(l => l.Type == type && l.Max == isMax);
+    }
+
+    public Level FindById(long id)
+    {
+        return _context.Levels.Find(id);
+    }
+
+    public void Save(Level level)
+    {
+        if (level.Id == 0)
         {
-            this.levelRepository = levelRepository;
+            _context.Levels.Add(level);
         }
-
-        public List<UpgradeableType> GetLevelTypes()
+        else
         {
-            return Enum.GetValues(typeof(UpgradeableType)).Cast<UpgradeableType>().ToList();
+            _context.Levels.Update(level);
         }
+        _context.SaveChanges();
+    }
 
-        public virtual  Level GetLevelByTypeAndLevel(UpgradeableType type, int level)
-        {
-            return levelRepository.GetLevelByTypeAndLevel(type, level)
-                   ?? throw new ArgumentException($"{type} has no level {level}.");
-        }
-
-        public Level GetLevelByTypeAndMax(UpgradeableType type, bool isMax)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<LevelDTO> GetLevelsByType(UpgradeableType type)
-        {
-            return levelRepository.GetLevelsByType(type);
-        }
-
-        public LevelDTO UpdateLevelById(long id, NewLevelDTO newLevelDTO)
-        {
-            var level = levelRepository.FindById(id)
-                        ?? throw new Exception("Level not found");
-            level.Effect = newLevelDTO.Effect;
-            level.Costs = new HashSet<LevelCost>(
-                newLevelDTO.Cost.Select(kv => new LevelCost 
-                { 
-                    Resource = kv.Key, 
-                    Amount = kv.Value, 
-                    LevelId = level.Id 
-                }));
-
-            levelRepository.Save(level);
-            return new LevelDTO(level);
-        }
-
-        public LevelDTO AddNewLevel(NewLevelDTO newLevelDTO)
-        {
-            var prevMaxLevel = levelRepository.GetLevelByTypeAndMax(newLevelDTO.Type, true);
-
-            var newMaxLevel = new Level
-            {
-                LevelValue = prevMaxLevel == null ? 1 : prevMaxLevel.LevelValue + 1,
-                Type = newLevelDTO.Type,
-                Effect = newLevelDTO.Effect,
-                Costs = new HashSet<LevelCost>(
-                    newLevelDTO.Cost.Select(kv => new LevelCost 
-                    { 
-                        Resource = kv.Key, 
-                        Amount = kv.Value
-                    })),
-                Max = true
-            };
-
-            if (prevMaxLevel != null)
-            {
-                prevMaxLevel.Max = false;
-                levelRepository.Save(prevMaxLevel);
-            }
-
-            levelRepository.Save(newMaxLevel);
-
-            return new LevelDTO(newMaxLevel);
-        }
-        
-        public bool DeleteLastLevelOfType(UpgradeableType type)
-        {
-            var maxLevel = levelRepository.GetLevelByTypeAndMax(type, true)
-                          ?? throw new InvalidOperationException($"No max level has been set for {type} type");
-            if (maxLevel.LevelValue == 1)
-            {
-                throw new ArgumentException("The first level can't be deleted.");
-            }
-            var newMaxLevel = levelRepository.GetLevelByTypeAndLevel(type, maxLevel.LevelValue - 1)
-                              ?? throw new InvalidOperationException($"Level sequence is incorrect for {type} type");
-            newMaxLevel.Max = true;
-            levelRepository.Delete(maxLevel);
-            levelRepository.Save(newMaxLevel);
-            return true;
-        }
-
-        public Level FindById(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Save(Level level)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Delete(Level level)
-        {
-            throw new NotImplementedException();
-        }
+    public void Delete(Level level)
+    {
+        _context.Levels.Remove(level);
+        _context.SaveChanges();
     }
 }

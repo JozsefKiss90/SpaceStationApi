@@ -2,13 +2,13 @@
 using SpaceShipAPI.Model.DTO.Ship.Part;
 using SpaceShipAPI.Model.Ship.ShipParts;
 using SpaceShipAPI.Repository;
+using SpaceShipAPI.Services;
 
 namespace SpaceShipAPI.Model.Ship;
 
 using System;
 using System.Collections.Generic;
-using SpaceShipAPI.Model;
-using SpaceShipAPI.Service;
+
 
 public class MinerShipManager : SpaceShipManager
 {
@@ -17,13 +17,13 @@ public class MinerShipManager : SpaceShipManager
     private ShipStorageManager storage;
     private DrillManager drill;
 
-    public MinerShipManager(ILevelRepository levelRepository, MinerShip minerShip) 
-        : base(levelRepository, minerShip)
+    public MinerShipManager(ILevelService levelService, MinerShip minerShip) 
+        : base(levelService, minerShip)
     {
         this.minerShip = minerShip;
     } 
 
-    public static MinerShip CreateNewMinerShip(ILevelRepository levelRepository, string name, ShipColor color)
+    public static MinerShip CreateNewMinerShip(ILevelService levelService, string name, ShipColor color)
     {
         MinerShip ship = new MinerShip 
         {
@@ -31,7 +31,7 @@ public class MinerShipManager : SpaceShipManager
             Color = color,
             EngineLevel = 1,
             ShieldLevel = 1,
-            ShieldEnergy = new ShieldManager(levelRepository, 1, 0).GetMaxEnergy(),
+            ShieldEnergy = new ShieldManager(levelService, 1, 0).GetMaxEnergy(),
             DrillLevel = 1,
             StorageLevel = 1,
             StoredResources = new Dictionary<ResourceType, int>()
@@ -138,7 +138,7 @@ public class MinerShipManager : SpaceShipManager
     {
         if (storage == null)
         {
-            storage = new ShipStorageManager(levelRepository, minerShip.StorageLevel, minerShip.StoredResources); 
+            storage = new ShipStorageManager(levelService, minerShip.StorageLevel, minerShip.StoredResources); 
         }
     }
 
@@ -146,7 +146,7 @@ public class MinerShipManager : SpaceShipManager
     {
         if (drill == null)
         {
-            drill = new DrillManager(levelRepository, minerShip.DrillLevel);
+            drill = new DrillManager(levelService, minerShip.DrillLevel);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using SpaceShipAPI;
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Repository;
-using SpaceShipAPI.Service;
+using SpaceShipAPI.Services;
 
 namespace SpaceshipAPI.Spaceship.Model.Station;
 
@@ -12,14 +12,14 @@ using System.Collections.Generic;
 public class SpaceStationManager
 {
     private readonly SpaceStation station;
-    private readonly ILevelRepository levelRepository;
+    private readonly ILevelService levelService;
     private HangarManager hangar;
     private StationStorageManager storage;
 
-    public SpaceStationManager(SpaceStation station, ILevelRepository levelRepository)
+    public SpaceStationManager(SpaceStation station, ILevelService levelService)
     {
         this.station = station;
-        this.levelRepository = levelRepository;
+        this.levelService = levelService;
     }
 
     public static SpaceStation CreateNewSpaceStation(string name)
@@ -114,7 +114,7 @@ public class SpaceStationManager
     {
         if (hangar == null)
         {
-            hangar = new HangarManager(levelRepository, station.HangarLevel, new HashSet<SpaceShip>(station.Hangar));
+            hangar = new HangarManager(levelService, station.HangarLevel, new HashSet<SpaceShip>(station.Hangar));
         }
     }
 
@@ -125,7 +125,7 @@ public class SpaceStationManager
             var storedResourcesDictionary = station.StoredResources
                 .ToDictionary(sr => sr.ResourceType, sr => sr.Amount);
 
-            storage = new StationStorageManager(levelRepository, station.StorageLevel, storedResourcesDictionary);
+            storage = new StationStorageManager(levelService, station.StorageLevel, storedResourcesDictionary);
         }
     }
 }

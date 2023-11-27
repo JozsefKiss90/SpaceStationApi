@@ -1,5 +1,4 @@
-﻿using SpaceShipAPI.Repository;
-using SpaceShipAPI.Service;
+﻿using SpaceShipAPI.Services;
 
 namespace SpaceShipAPI.Model.Ship.ShipParts;
 
@@ -7,8 +6,8 @@ public class ScannerManager : Upgradeable
 {
     private static readonly UpgradeableType TYPE = UpgradeableType.SCANNER;
 
-    public ScannerManager(ILevelRepository levelRepository, int level) 
-        : base(levelRepository, TYPE, level)
+    public ScannerManager(ILevelService levelService, int level) 
+        : base(levelService, TYPE, level)
     {
     }
 
