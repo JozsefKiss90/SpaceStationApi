@@ -29,24 +29,17 @@ public class SpaceStationRepository : ISpaceStationRepository
         ));
     }
     
-    public async Task<SpaceStationDTO> GetByIdAsync(long id)
+    public async Task<SpaceStation> GetByIdAsync(long id)
     {
         var spaceStation = await _context.SpaceStation
             .Include(s => s.Hangar)
             .Include(s => s.StoredResources)
             .FirstOrDefaultAsync(s => s.Id == id);
 
-        return spaceStation != null
-            ? new SpaceStationDTO
-            (
-                id: spaceStation.Id,
-                name: spaceStation.Name,
-                hangar: null,
-                storage: null
-            ): null;
+        return spaceStation;
     }
 
-    public async Task<SpaceStationDataDTO> GetByUserAsync(UserEntity user)
+    public async Task<SpaceStation> GetByUserAsync(UserEntity user)
     {
         var spaceStation = await _context.SpaceStation
             .FirstOrDefaultAsync(s => s.User == user);
@@ -54,10 +47,7 @@ public class SpaceStationRepository : ISpaceStationRepository
         if (spaceStation == null)
             return null;
 
-        return new SpaceStationDataDTO
-        (
-            spaceStation
-        );
+        return spaceStation;
     }
     public async Task CreateAsync(SpaceStation spaceStation)
     {

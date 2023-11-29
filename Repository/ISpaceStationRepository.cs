@@ -9,8 +9,8 @@ using SpaceshipAPI.Spaceship.Model.Station;
 public interface ISpaceStationRepository : IDisposable
 {
     Task<IEnumerable<SpaceStationDTO>> GetAllAsync();
-    Task<SpaceStationDTO> GetByIdAsync(long id);
-    Task<SpaceStationDataDTO> GetByUserAsync(UserEntity user); // Added method
+    Task<SpaceStation> GetByIdAsync(long id);
+    Task<SpaceStation> GetByUserAsync(UserEntity user); 
     Task CreateAsync(SpaceStation spaceStation);
     Task UpdateAsync(SpaceStation spaceStation);
     Task DeleteAsync(long id);

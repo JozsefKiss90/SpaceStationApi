@@ -1,4 +1,5 @@
-﻿using SpaceShipAPI;
+﻿using DefaultNamespace;
+using SpaceShipAPI;
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Repository;
 using SpaceShipAPI.Services;
@@ -16,7 +17,10 @@ public class SpaceStationManager
     private HangarManager hangar;
     private StationStorageManager storage;
 
-    public SpaceStationManager(SpaceStation station, ILevelService levelService)
+    public SpaceStationManager(
+        SpaceStation station, 
+        ILevelService levelService
+        )
     {
         this.station = station;
         this.levelService = levelService;
@@ -108,7 +112,19 @@ public class SpaceStationManager
         return storage.AddResource(resourceType, quantity);
     }
 
-    // ... Implement other methods based on your application's need
+    public SpaceStationDTO GetStationDTO() {
+        return new SpaceStationDTO(station.Id, station.Name, getHangarDTO(), getStorageDTO());
+    }
+    
+    public SpaceStationStorageDTO getStorageDTO() {
+        CreateStorageIfNotExists();
+        return SpaceStationStorageDTOFactory.Create(storage);
+    }
+
+    public HangarDTO getHangarDTO() { 
+        CreateHangarIfNotExists();
+        return HangarDTOFactory.Create(hangar);
+    }
 
     private void CreateHangarIfNotExists()
     {
