@@ -1,4 +1,6 @@
-﻿using SpaceShipAPI.Model.DTO.Ship;
+﻿using Microsoft.AspNetCore.Identity;
+using SpaceshipAPI;
+using SpaceShipAPI.Model.DTO.Ship;
 using SpaceShipAPI.Model.Mission;
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship;
@@ -6,9 +8,6 @@ using SpaceShipAPI.Model.Ship.ShipParts;
 
 namespace SpaceShipAPI.Services;
 
-using SpaceShipAPI.DTO;
-using SpaceShipAPI.Model;
-using SpaceShipAPI.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,22 +16,28 @@ using System.Threading.Tasks;
 
 public class ShipService
 {
+    private readonly UserManager<UserEntity> _userManager;
     private readonly ISpaceShipRepository _spaceShipRepository;
-    // Assuming repositories and factories for ship management and missions are available
     private readonly ShipManagerFactory _shipManagerFactory;
     private readonly MissionFactory _missionFactory;
     private readonly ILevelService _levelService;
+    private readonly MissionRepository _missionRepository;
 
     public ShipService(
+        UserManager<UserEntity> userManager,
         ISpaceShipRepository spaceShipRepository,
         ShipManagerFactory shipManagerFactory,
         MissionFactory missionFactory,
-        ILevelService levelService)
+        ILevelService levelService,
+        MissionRepository missionRepository
+        )
     {
+        _userManager = userManager;
         _spaceShipRepository = spaceShipRepository;
         _shipManagerFactory = shipManagerFactory;
         _missionFactory = missionFactory;
         _levelService = levelService;
+        _missionRepository = missionRepository;
     }
 
     public async Task<IEnumerable<ShipDTO>> GetShipsByStationAsync(long stationId, ClaimsPrincipal user)
@@ -66,7 +71,6 @@ public class ShipService
 
         var spaceShipManager = _shipManagerFactory.GetSpaceShipManager(ship);
         var cost = spaceShipManager.GetUpgradeCost(part);
-        // Assume stationManager is available to handle resource management
         // stationManager.RemoveResources(cost);
         spaceShipManager.UpgradePart(part);
         await _spaceShipRepository.UpdateAsync(ship);
@@ -91,9 +95,8 @@ public class ShipService
         return true;
     }
 
-    // Other service methods...
 
-    private void UpdateMissionIfExists(SpaceShipManager spaceShipManager)
+    private async Task UpdateMissionIfExists(SpaceShipManager spaceShipManager)
     {
         var currentMission = spaceShipManager.GetCurrentMission();
         if (currentMission != null)
@@ -102,15 +105,39 @@ public class ShipService
             missionManager.SetShipManager(spaceShipManager);
             if (missionManager.UpdateStatus())
             {
-                // Save updated mission
-                // _missionRepository.Save(currentMission);
+                await _missionRepository.UpdateAsync(currentMission);
             }
         }
     }
-
-    private SpaceShip GetShipByIdAndCheckAccess(long id, ClaimsPrincipal user)
+    
+    private async Task<SpaceShip> GetShipByIdAndCheckAccess(long id, ClaimsPrincipal user)
     {
-        // Logic to check access rights...
-        // Return ship if user has access
+        var ship = await _spaceShipRepository.GetByIdAsync(id);
+        if (ship == null)
+        {
+            throw new KeyNotFoundException($"No ship found with id {id}");
+        }
+
+        var currentUser = await GetCurrentUserAsync(user);
+        if (currentUser == null)
+        {
+            throw new UnauthorizedAccessException("You don't have authority to access this ship");
+        }
+
+        var isAdmin = user.IsInRole("Admin"); 
+        if (!isAdmin && currentUser.Id != ship.UserId)
+        {
+            throw new UnauthorizedAccessException("You don't have authority to access this ship");
+        }
+
+        return ship;
     }
+
+
+    
+    private async Task<UserEntity> GetCurrentUserAsync(ClaimsPrincipal userPrincipal)
+    {
+        return await _userManager.GetUserAsync(userPrincipal);
+    }
+
 }

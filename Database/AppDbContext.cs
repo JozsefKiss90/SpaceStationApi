@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SpaceshipAPI;
+using SpaceShipAPI.Model.Location;
+using SpaceShipAPI.Model.Mission;
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship;
 using SpaceshipAPI.Spaceship.Model.Station;
@@ -15,12 +17,13 @@ public class AppDbContext : IdentityDbContext<UserEntity>
     public DbSet<SpaceStation> SpaceStation { get; set; }
     public DbSet<StoredResource> StoredResources { get; set; }
     public DbSet<Level> Levels { get; set; }
+    public DbSet<Mission> Missions { get; set; }
+    public DbSet<Location> Locations { get; set; }
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
     {
     }
-
-
+    
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

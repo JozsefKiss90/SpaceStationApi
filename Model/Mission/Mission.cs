@@ -22,6 +22,7 @@ public abstract class Mission
     public SpaceShip Ship { get; set; }
     
     [ForeignKey("UserId")]
+    public string? UserId { get; set; }
     public UserEntity User { get; set; }
     
     public List<Event> Events { get; set; }

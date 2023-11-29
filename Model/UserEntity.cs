@@ -13,5 +13,5 @@ public class UserEntity : IdentityUser
     public int? SpaceStationId { get; set; } // Foreign key, nullable
     public virtual SpaceStation SpaceStation { get; set; } // Navigation property
     
-   // public Role Role { get; set; }
+    //public Role Role { get; set; }
 }
