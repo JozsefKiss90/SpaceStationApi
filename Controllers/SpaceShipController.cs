@@ -6,36 +6,45 @@ using SpaceShipAPI.Database;
 using SpaceShipAPI.Model.DTO.Ship;
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship;
+using SpaceShipAPI.Services;
 
 namespace SpaceShipAPI.Controllers;
 
 [Route("api/spaceships")]
 [ApiController]
+[Authorize]
 public class SpaceShipController : ControllerBase
 {
-    private readonly ISpaceShipRepository _spaceShipRepository;
+    private readonly ShipService _shipService;
     private readonly ILogger<SpaceShipController> _logger;
     private readonly AppDbContext _userContext;
 
-    public SpaceShipController(ISpaceShipRepository spaceShipRepository, AppDbContext userContext, ILogger<SpaceShipController> logger)
+    public SpaceShipController(ShipService shipService, AppDbContext userContext, ILogger<SpaceShipController> logger)
     {
-        _spaceShipRepository = spaceShipRepository;
+        _shipService = shipService;
         _userContext = userContext;
         _logger = logger;
     }
-
-
+    
     [HttpGet]
     public async Task<IActionResult> GetAllAsync()
     {
-        var spaceShips = await _spaceShipRepository.GetAllAsync();
+        var spaceShips = await _shipService.GetAllShips(User);
+        return Ok(spaceShips);
+    }
+
+    
+    [HttpGet]
+    public async Task<IActionResult> GetShipsByStationId(long stationId)
+    {
+        var spaceShips = await _shipService.GetShipsByStationAsync(stationId, User);
         return Ok(spaceShips);
     }
 
     [HttpGet("{id}", Name = "GetShip")] 
     public async Task<IActionResult> GetByIdAsync(long id)
     {
-        var spaceShip = await _spaceShipRepository.GetByIdAsync(id);
+        var spaceShip = await _shipService.GetShipDetailsByIdAsync(id);
         if (spaceShip == null)
         {
             return NotFound();
@@ -45,9 +54,9 @@ public class SpaceShipController : ControllerBase
     }
 
     [HttpPost, Authorize(Roles = "User")]  
-    public async Task<IActionResult> CreateAsync([FromBody] ShipDTO shipDTO)
+    public async Task<IActionResult> CreateAsync([FromBody] NewShipDTO newShipDTO)
     {
-        if (shipDTO == null)
+        if (newShipDTO == null)
         {
             return BadRequest(); 
         }
@@ -64,25 +73,16 @@ public class SpaceShipController : ControllerBase
             return Unauthorized("User is not authenticated.");
         }
         _logger.LogInformation($"User ID: {userId}");
-     
-        var minerShip = new MinerShip
-        {
-            Name = shipDTO.Name,
-            Color = shipDTO.Color,
-            EngineLevel = 0, 
-            ShieldLevel = 0,
-            ShieldEnergy = 0,
-            DrillLevel = 0, 
-            StorageLevel = 0,
-            UserId = userId,
-        };
-        
-        minerShip.SpaceStation = null;  
-        //minerShip.User = null; 
-        //minerShip.CurrentMission = null;
 
-        await _spaceShipRepository.CreateAsync(minerShip);
-        return CreatedAtRoute("GetShip", new { id = minerShip.Id }, minerShip);
+        SpaceShip spaceShip = await _shipService.CreateShip(newShipDTO, User);
+        return Ok(spaceShip);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetShipColors()
+    {
+        ShipColor[] colors = _shipService.getColors();
+        return Ok(colors);
     }
     
     [HttpPut("{id}")]
@@ -93,13 +93,13 @@ public class SpaceShipController : ControllerBase
             return BadRequest();
         }
 
-        var existingSpaceShip = await _spaceShipRepository.GetByIdAsync(id);
+        var existingSpaceShip = await _shipService.GetByIdAsync(id);
         if (existingSpaceShip == null)
         {
             return NotFound();
         }
 
-        await _spaceShipRepository.UpdateAsync(spaceShip);
+        await _shipService.UpdateAsync(spaceShip);
 
         return NoContent();
     }
@@ -107,13 +107,13 @@ public class SpaceShipController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAsync(long id)
     {
-        var existingSpaceShip = await _spaceShipRepository.GetByIdAsync(id);
+        var existingSpaceShip = await _shipService.GetByIdAsync(id);
         if (existingSpaceShip == null)
         {
             return NotFound();
         }
 
-        await _spaceShipRepository.DeleteAsync(id);
+        await _shipService.DeleteAsync(id);
 
         return NoContent();
     }

@@ -18,6 +18,7 @@ public class ShipService
 {
     private readonly UserManager<UserEntity> _userManager;
     private readonly ISpaceShipRepository _spaceShipRepository;
+    private readonly ISpaceStationRepository _spaceStationRepository;
     private readonly ShipManagerFactory _shipManagerFactory;
     private readonly MissionFactory _missionFactory;
     private readonly ILevelService _levelService;
@@ -26,6 +27,7 @@ public class ShipService
     public ShipService(
         UserManager<UserEntity> userManager,
         ISpaceShipRepository spaceShipRepository,
+        ISpaceStationRepository spaceStationRepository,
         ShipManagerFactory shipManagerFactory,
         MissionFactory missionFactory,
         ILevelService levelService,
@@ -38,14 +40,50 @@ public class ShipService
         _missionFactory = missionFactory;
         _levelService = levelService;
         _missionRepository = missionRepository;
+        _spaceStationRepository = spaceStationRepository;
+    }
+
+    public async Task<SpaceShip> GetByIdAsync(long id)
+    {
+        var ship = await _spaceShipRepository.GetByIdAsync(id);
+        return ship;
+    }
+    
+    public async Task<IEnumerable<ShipDTO>> GetAllShips(ClaimsPrincipal user)
+    {
+        var currentUser = await GetCurrentUserAsync(user);
+
+        if (user.IsInRole("Admin"))
+        {
+            var ships = await _spaceShipRepository.GetAllAsync();
+            return ships.Select(ship => new ShipDTO(ship));
+        }
+        else
+        {
+            var ships = await _spaceShipRepository.GetAllByIdAsync(long.Parse(currentUser.Id));
+            return ships.Select(ship => new ShipDTO(ship));
+        }
     }
 
     public async Task<IEnumerable<ShipDTO>> GetShipsByStationAsync(long stationId, ClaimsPrincipal user)
     {
-        // Authorization checks go here
+        var currentUser = await GetCurrentUserAsync(user);
 
-        var ships = await _spaceShipRepository.GetByStationIdAsync(stationId);
-        return ships.Select(ship => new ShipDTO(ship));
+        var station = await _spaceStationRepository.GetByIdAsync(stationId);
+        if (station == null)
+        {
+            throw new KeyNotFoundException($"No station found with id {stationId}");
+        }
+
+        if (user.IsInRole("Admin") || station.User.Id == currentUser.Id)
+        {
+            var ships = await _spaceShipRepository.GetByStationIdAsync(stationId);
+            return ships.Select(ship => new ShipDTO(ship));
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("You do not have access to these ships");
+        }
     }
 
     public async Task<ShipDetailDTO> GetShipDetailsByIdAsync(long id)
@@ -60,6 +98,31 @@ public class ShipService
         UpdateMissionIfExists(spaceShipManager);
         return spaceShipManager.GetDetailedDTO();
     }
+
+    public async Task<SpaceShip> CreateShip(NewShipDTO newShip, ClaimsPrincipal userPrincipal)
+    {
+        SpaceShip spaceShip;
+        var currentUser = await GetCurrentUserAsync(userPrincipal);
+        if (newShip.type == ShipType.MINER)
+        {
+            spaceShip = MinerShipManager.CreateNewMinerShip(_levelService, newShip.name, newShip.color);
+            spaceShip.User = currentUser;
+        } else if (newShip.type == ShipType.SCOUT)
+        {
+            spaceShip = ScoutShipManager.CreateNewScoutShip(_levelService, newShip.name, newShip.color);
+            spaceShip.User = currentUser;
+        } else {
+            throw new Exception("Ship type not recognized");
+        }
+        return spaceShip;
+    } 
+    
+    public async Task<SpaceShip> UpdateAsync(SpaceShip ship)
+    {
+        SpaceShip updatedShip = await _spaceShipRepository.UpdateAsync(ship);
+        return updatedShip;
+    }
+
 
     public async Task<ShipDetailDTO> UpgradeShipPartAsync(long id, ShipPart part)
     {
@@ -77,6 +140,8 @@ public class ShipService
 
         return spaceShipManager.GetDetailedDTO();
     }
+    
+    
 
     public async Task<bool> DeleteShipByIdAsync(long id)
     {
@@ -95,8 +160,7 @@ public class ShipService
         return true;
     }
 
-
-    private async Task UpdateMissionIfExists(SpaceShipManager spaceShipManager)
+    public async Task UpdateMissionIfExists(SpaceShipManager spaceShipManager)
     {
         var currentMission = spaceShipManager.GetCurrentMission();
         if (currentMission != null)
@@ -108,6 +172,10 @@ public class ShipService
                 await _missionRepository.UpdateAsync(currentMission);
             }
         }
+    }
+    
+    public ShipColor[] getColors() {
+        return Enum.GetValues<ShipColor>();
     }
     
     private async Task<SpaceShip> GetShipByIdAndCheckAccess(long id, ClaimsPrincipal user)
@@ -132,8 +200,11 @@ public class ShipService
 
         return ship;
     }
-
-
+    
+    public async Task DeleteAsync(long id)
+    {
+        _spaceShipRepository.DeleteAsync(id);
+    }
     
     private async Task<UserEntity> GetCurrentUserAsync(ClaimsPrincipal userPrincipal)
     {

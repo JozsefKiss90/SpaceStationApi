@@ -27,6 +27,14 @@ public class SpaceShipRepository : ISpaceShipRepository
 
         return spaceShip; // != null ? new ShipDTO(spaceShip) : null;
     }
+    
+    public async Task<IEnumerable<SpaceShip>> GetAllByIdAsync(long id)
+    {
+        var spaceShipsByUser =  _context.Set<SpaceShip>()
+            .Where(s => s.Id == id).ToList();
+
+        return spaceShipsByUser;
+    }
 
     public async Task<IEnumerable<SpaceShip>> GetByStationIdAsync(long stationId)
     {
@@ -45,18 +53,19 @@ public class SpaceShipRepository : ISpaceShipRepository
         return allShips;
     }
     
-
-    public async Task CreateAsync(SpaceShip spaceShip)
+    public async Task<SpaceShip> CreateAsync(SpaceShip spaceShip)
     {
         _context.Add(spaceShip);
         await _context.SaveChangesAsync();
+        return spaceShip;
     }
 
 
-    public async Task UpdateAsync(SpaceShip spaceShip)
+    public async Task<SpaceShip> UpdateAsync(SpaceShip spaceShip)
     {
         _context.Entry(spaceShip).State = EntityState.Modified;
         await _context.SaveChangesAsync();
+        return await GetByIdAsync(spaceShip.Id);
     }
 
     public async Task DeleteAsync(long id)

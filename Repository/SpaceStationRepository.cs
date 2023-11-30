@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SpaceshipAPI;
 using SpaceShipAPI.Database;
 using SpaceShipAPI.Model.DTO;
+using SpaceshipAPI.Model.Ship;
 using SpaceshipAPI.Spaceship.Model.Station;
 
 public class SpaceStationRepository : ISpaceStationRepository
@@ -61,7 +62,7 @@ public class SpaceStationRepository : ISpaceStationRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(long id)
+    public async Task DeleteAsync(long id) 
     {
         var spaceStation = await _context.SpaceStation.FindAsync(id);
         if (spaceStation != null)

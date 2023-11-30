@@ -89,6 +89,22 @@ public class SpaceStationManager
         return hangar.AddShip(ship) && RemoveResources(cost);
     }
 
+    public Dictionary<ResourceType, int> GetStoredResources()
+    {
+        CreateStorageIfNotExists();
+        return storage.GetStoredResources();
+    }
+
+    public Dictionary<ResourceType, int> GetStorageUpgradeCost()
+    {
+        CreateStorageIfNotExists();
+        return storage.GetUpgradeCost();
+    }
+
+    public  Dictionary<ResourceType, int> GetHangarUpgradeCost() {
+        CreateHangarIfNotExists();
+        return hangar.GetUpgradeCost();
+    }
     public bool RemoveShip(SpaceShip ship)
     {
         CreateHangarIfNotExists();
@@ -105,6 +121,40 @@ public class SpaceStationManager
         CreateHangarIfNotExists();
         return hangar.HasShipAvailable(ship);
     }
+    
+    public bool UpgradeHangar(){
+        CreateHangarIfNotExists();
+        Dictionary<ResourceType, int> cost = hangar.GetUpgradeCost();
+        RemoveResources(cost);
+        hangar.Upgrade();
+        station.HangarLevel = hangar.GetCurrentLevel();
+        return true;
+    }
+    
+    public bool AddResourcesFromShip(MinerShipManager shipManager, Dictionary<ResourceType, int> resources) {
+        if (HasShipAvailable(shipManager.GetShip()) && shipManager.HasResourcesInStorage(resources))
+        { 
+            int sum = resources.Values.Sum();
+            CreateStorageIfNotExists();
+            if (sum <= storage.GetCurrentAvailableStorageSpace()) {
+                foreach (var resource in resources)
+                {
+                    AddResource( resource.Key, resource.Value);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public bool UpgradeStorage() {
+        CreateStorageIfNotExists();
+        Dictionary<ResourceType, int> cost = storage.GetUpgradeCost();
+        RemoveResources(cost);
+        storage.Upgrade();
+        station.StorageLevel = storage.GetCurrentLevel();
+        return true;
+    }
 
     public bool AddResource(ResourceType resourceType, int quantity)
     {
@@ -113,15 +163,15 @@ public class SpaceStationManager
     }
 
     public SpaceStationDTO GetStationDTO() {
-        return new SpaceStationDTO(station.Id, station.Name, getHangarDTO(), getStorageDTO());
+        return new SpaceStationDTO(station.Id, station.Name, GetHangarDTO(), GetStorageDTO());
     }
     
-    public SpaceStationStorageDTO getStorageDTO() {
+    public SpaceStationStorageDTO GetStorageDTO() {
         CreateStorageIfNotExists();
         return SpaceStationStorageDTOFactory.Create(storage);
     }
 
-    public HangarDTO getHangarDTO() { 
+    public HangarDTO GetHangarDTO() { 
         CreateHangarIfNotExists();
         return HangarDTOFactory.Create(hangar);
     }

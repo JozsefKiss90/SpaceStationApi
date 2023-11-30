@@ -133,6 +133,13 @@ public class MinerShipManager : SpaceShipManager
     {
         return new Dictionary<ResourceType, int>(ShipType.MINER.GetCost());
     }
+    
+    
+    public bool HasResourcesInStorage(Dictionary<ResourceType, int> resources) {
+        CreateStorageIfNotExists(); 
+        bool allMatch = resources.All(entry => storage.HasResource(entry.Key, entry.Value));
+        return allMatch;
+    }
 
     private void CreateStorageIfNotExists()
     {
