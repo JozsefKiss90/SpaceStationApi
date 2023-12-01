@@ -21,13 +21,13 @@ public class LevelService : ILevelService
     {
         return _levelRepository.GetLevelByTypeAndLevel(type, level) ?? throw new ArgumentException($"{type} has no level {level}.");
     }
-
+    
     public List<LevelDTO> GetLevelsByType(UpgradeableType type)
     {
         var levels = _levelRepository.GetLevelsByType(type);
         return levels.Select(l => new LevelDTO(l)).ToList();
     }
-
+    
     public LevelDTO UpdateLevelById(long id, NewLevelDTO newLevelDTO)
     {
         var level = FindById(id);
@@ -36,7 +36,7 @@ public class LevelService : ILevelService
         Save(level);
         return new LevelDTO(level);
     }
-
+    
     public LevelDTO AddNewLevel(NewLevelDTO newLevelDTO)
     {
         var prevMaxLevel = _levelRepository.GetLevelByTypeAndMax(newLevelDTO.Type, true);
@@ -47,11 +47,9 @@ public class LevelService : ILevelService
             prevMaxLevel.Max = false;
             Save(prevMaxLevel);
         }
-
         Save(newMaxLevel);
         return new LevelDTO(newMaxLevel);
     }
-
     public bool DeleteLastLevelOfType(UpgradeableType type)
     {
         var maxLevel = _levelRepository.GetLevelByTypeAndMax(type, true) ?? throw new InvalidOperationException($"No max level has been set for {type} type");

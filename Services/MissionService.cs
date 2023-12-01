@@ -1,13 +1,12 @@
-﻿using SpaceShipAPI.DTO;
+﻿using System.Security;
 using SpaceShipAPI.Model.Mission;
-using SpaceShipAPI.Model.Ship;
 using SpaceShipAPI.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using SpaceShipAPI.Model.DTO;
 using SpaceShipAPI.Model.DTO.Mission;
+using SpaceShipAPI.Model.DTO.MissionDTO;
+using SpaceShipAPI.Model.DTO.MissionDTOs;
+using SpaceShipAPI.Model.Ship;
 
 namespace SpaceShipAPI.Services
 {
@@ -36,9 +35,6 @@ namespace SpaceShipAPI.Services
             var missions = await _missionRepository.GetMissionsByUserIdAndCurrentStatusNotAsync(userId, MissionStatus.ARCHIVED);
             return missions.Select(m => UpdateAndConvert(m));
         }
-
-        // Other methods like GetAllActiveMissionsByUserIdAsync, GetAllArchivedMissionsForCurrentUserAsync, etc.
-
         public async Task<MissionDetailDTO> GetMissionByIdAsync(long id, ClaimsPrincipal user)
         {
             var mission = await GetMissionByIdAndCheckAccessAsync(id, user);
@@ -47,6 +43,79 @@ namespace SpaceShipAPI.Services
             {
                 await _missionRepository.UpdateAsync(mission);
             }
+            return missionManager.GetDetailedDTO();
+        }
+        public async Task<MissionDetailDTO> StartNewMiningMission(NewMiningMissionDTO newMissionDTO, ClaimsPrincipal user)
+        {
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var spaceShip = await _spaceShipRepository.GetByIdAsync(newMissionDTO.shipId);
+            
+            if (spaceShip == null)
+            {
+                throw new Exception($"No ship found with id {newMissionDTO.shipId}");
+            }
+
+            if (spaceShip.UserId != userId)
+            {
+                throw new SecurityException("You don't have authority to send this ship.");
+            }
+
+            if (!(spaceShip is MinerShip))
+            {
+                throw new ArgumentException("Ship is not a miner ship.");
+            }
+
+            var location = await _locationRepository.GetByIdAsync(newMissionDTO.locationId);
+
+            if (location == null)
+            {
+                throw new Exception($"No location found with id {newMissionDTO.locationId}");
+            }
+
+            var mission = _missionFactory.StartNewMiningMission((MinerShip)spaceShip, location, newMissionDTO.activityTime);
+            mission = (MiningMission) await _missionRepository.CreateAsync(mission);
+            var missionManager = _missionFactory.GetMissionManager(mission);
+            missionManager.UpdateStatus();
+            await _missionRepository.CreateAsync(mission);
+            return missionManager.GetDetailedDTO();
+        }
+        
+        public MissionDetailDTO StartNewScoutingMission(NewScoutingMissionDTO newMissionDTO, ClaimsPrincipal user)
+        {
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    
+            // Fetch the SpaceShip by ID
+            var spaceShip = _spaceShipRepository.GetByIdAsync(newMissionDTO.ShipId).Result;
+
+            if (spaceShip == null)
+            {
+                throw new Exception($"No ship found with id {newMissionDTO.ShipId}");
+            }
+
+            if (spaceShip.UserId != userId)
+            {
+                throw new SecurityException("You don't have authority to send this ship.");
+            }
+
+            if (!(spaceShip is ScoutShip))
+            {
+                throw new ArgumentException("Ship is not a scout ship.");
+            }
+
+            var mission = _missionFactory.StartNewScoutingMission(
+                (ScoutShip)spaceShip,
+                newMissionDTO.Distance,
+                newMissionDTO.ActivityTime,
+                newMissionDTO.TargetResource,
+                newMissionDTO.PrioritizingDistance);
+
+            mission = (ScoutingMission)_missionRepository.CreateAsync(mission).Result;
+
+            var missionManager = _missionFactory.GetMissionManager(mission);
+            missionManager.UpdateStatus();
+            
+            _missionRepository.CreateAsync(mission).Wait();
+
             return missionManager.GetDetailedDTO();
         }
 
@@ -60,14 +129,42 @@ namespace SpaceShipAPI.Services
             }
             return new MissionDTO(mission);
         }
-        
         private Mission Update(Mission mission)
         {
             var missionManager = _missionFactory.GetMissionManager(mission);
             _missionRepository.UpdateAsync(mission);
             return mission;
         }
+        
+        public async Task<MissionDetailDTO> ArchiveMission(long id, ClaimsPrincipal user)
+        {
+            var mission = await GetMissionByIdAndCheckAccessAsync(id, user);
+            var missionManager = _missionFactory.GetMissionManager(mission);
+            if (missionManager.ArchiveMission())
+            {
+                _missionRepository.UpdateAsync(mission).Wait();
+                return missionManager.GetDetailedDTO();
+            }
+            return null;
+        }
 
+        
+        public async Task<MissionDetailDTO> AbortMission(long id, ClaimsPrincipal user)
+        {
+            var mission = await GetMissionByIdAndCheckAccessAsync(id, user);
+            var missionManager = _missionFactory.GetMissionManager(mission);
+            if (missionManager.UpdateStatus())
+            {
+                _missionRepository.UpdateAsync(mission).Wait();
+            }
+            if (missionManager.AbortMission())
+            {
+                _missionRepository.UpdateAsync(mission).Wait();
+                return missionManager.GetDetailedDTO();
+            }
+            return null;
+        }
+        
         private async Task<Mission> GetMissionByIdAndCheckAccessAsync(long id, ClaimsPrincipal user)
         {
             var mission = await _missionRepository.GetByIdAsync(id);

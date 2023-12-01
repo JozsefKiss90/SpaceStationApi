@@ -1,6 +1,7 @@
 ﻿using SpaceShipAPI.Model.Ship;
 using SpaceShipAPI.Model.Location;
 using SpaceShipAPI.Model.DTO.Mission;
+using SpaceShipAPI.Model.DTO.MissionDTOs;
 using SpaceShipAPI.Model.Mission;
 
 public class MiningMissionManager : MissionManager

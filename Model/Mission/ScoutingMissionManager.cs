@@ -1,4 +1,5 @@
 ﻿using SpaceShipAPI.Model.DTO.Mission;
+using SpaceShipAPI.Model.DTO.MissionDTOs;
 using SpaceShipAPI.Model.Location;
 using SpaceShipAPI.Model.Ship;
 namespace SpaceShipAPI.Model.Mission;

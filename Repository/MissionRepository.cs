@@ -24,10 +24,11 @@ public class MissionRepository : IMissionRepository
         return await _context.Missions.FindAsync(id);
     }
 
-    public async Task CreateAsync(Mission mission)
+    public async Task<Mission> CreateAsync(Mission mission)
     {
         _context.Missions.Add(mission);
         await _context.SaveChangesAsync();
+        return mission;
     }
 
     public async Task UpdateAsync(Mission mission)

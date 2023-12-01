@@ -1,8 +1,9 @@
-﻿using SpaceshipAPI.Model.Ship;
+﻿using SpaceShipAPI.Model.DTO.Mission;
+using SpaceshipAPI.Model.Ship;
 
-namespace SpaceShipAPI.Model.DTO.Mission;
+namespace SpaceShipAPI.Model.DTO.MissionDTOs;
 
-public abstract class MissionDetailDTO : MissionDTO
+public abstract class MissionDetailDTO : global::MissionDTO
 {
     public List<EventDTO> Reports { get; }
     public long ShipId { get; }

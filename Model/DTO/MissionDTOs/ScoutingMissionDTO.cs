@@ -1,6 +1,6 @@
 ﻿using SpaceshipAPI.Model.Ship;
 
-namespace SpaceShipAPI.Model.DTO.Mission;
+namespace SpaceShipAPI.Model.DTO.MissionDTOs;
 
 public class ScoutingMissionDTO : MissionDetailDTO
 {

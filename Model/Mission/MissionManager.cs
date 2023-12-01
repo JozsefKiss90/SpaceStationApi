@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SpaceShipAPI.Model.DTO.Mission;
+using SpaceShipAPI.Model.DTO.MissionDTOs;
 using SpaceShipAPI.Model.Mission;
 using SpaceShipAPI.Model.Ship;
 

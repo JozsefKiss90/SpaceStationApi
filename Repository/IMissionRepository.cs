@@ -6,7 +6,7 @@ public interface IMissionRepository
 {
     Task<IEnumerable<Mission>> GetAllAsync();
     Task<Mission> GetByIdAsync(long id);
-    Task CreateAsync(Mission mission);
+    Task<Mission> CreateAsync(Mission mission);
     Task UpdateAsync(Mission mission);
     Task DeleteAsync(long id);
 
