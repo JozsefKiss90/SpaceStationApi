@@ -13,10 +13,12 @@ public abstract class Mission
     public DateTime CurrentObjectiveTime { get; set; }
     public DateTime ApproxEndTime { get; set; }
     
-    [Column(TypeName = "nvarchar(255)")]
+    [Column(TypeName = "varchar(255)")]
     public MissionStatus CurrentStatus { get; set; }
     public long TravelDurationInSecs { get; set; }
     public long ActivityDurationInSecs { get; set; }
+    
+    public SpaceShip Ship { get; set; }
     
     [ForeignKey("UserId")]
     public string? UserId { get; set; }

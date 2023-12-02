@@ -1,9 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using DefaultNamespace;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using SpaceShipAPI.Model.Location;
 using SpaceShipAPI.Model.Mission;
 
+[Table("Missions")]
 public class MiningMission : Mission
 {
     [ForeignKey("LocationId")]

@@ -16,7 +16,7 @@ public class Location
     public DateTime Discovered { get; set; }
     public int DistanceFromStation { get; set; }
 
-    [Column(TypeName = "nvarchar(255)")]
+    [Column(TypeName = "varchar(255)")]
     public ResourceType ResourceType { get; set; }
     public int ResourceReserve { get; set; }
     

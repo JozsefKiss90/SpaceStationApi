@@ -5,7 +5,7 @@ using SpaceShipAPI.Model.Location;
 using SpaceShipAPI.Model.Mission;
 
 
-[Table("ScoutingMissions")]
+[Table("Missions")]
 public class ScoutingMission : Mission
 {
     [Column("TargetResource")]
