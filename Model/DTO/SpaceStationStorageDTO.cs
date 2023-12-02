@@ -2,6 +2,7 @@
 using System.Linq;
 using SpaceShipAPI;
 using SpaceshipAPI.Spaceship.Model.Station;
+using SpaceShipAPI.Utils;
 
 public record SpaceStationStorageDTO(Dictionary<ResourceType, int> Resources, int Level, int Capacity, int FreeSpace, bool FullyUpgraded);
 
@@ -15,6 +16,6 @@ public class SpaceStationStorageDTOFactory
         var freeSpace = storageManager.GetCurrentAvailableStorageSpace();
         var fullyUpgraded = storageManager.IsFullyUpgraded();
 
-        return new SpaceStationStorageDTO(resources, level, capacity, freeSpace, fullyUpgraded);
+        return new SpaceStationStorageDTO(ResourceUtility.ConvertToDictionary(resources), level, capacity, freeSpace, fullyUpgraded);
     }
 }

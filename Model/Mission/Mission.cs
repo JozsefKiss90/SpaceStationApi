@@ -17,9 +17,6 @@ public abstract class Mission
     public MissionStatus CurrentStatus { get; set; }
     public long TravelDurationInSecs { get; set; }
     public long ActivityDurationInSecs { get; set; }
-
-    [ForeignKey("ShipId")]
-    public SpaceShip Ship { get; set; }
     
     [ForeignKey("UserId")]
     public string? UserId { get; set; }

@@ -3,6 +3,7 @@ using SpaceShipAPI.Model.DTO.Ship.Part;
 using SpaceShipAPI.Model.Ship.ShipParts;
 using SpaceShipAPI.Repository;
 using SpaceShipAPI.Services;
+using SpaceShipAPI.Utils;
 
 namespace SpaceShipAPI.Model.Ship;
 
@@ -34,7 +35,7 @@ public class MinerShipManager : SpaceShipManager
             ShieldEnergy = new ShieldManager(levelService, 1, 0).GetMaxEnergy(),
             DrillLevel = 1,
             StorageLevel = 1,
-            StoredResources = new Dictionary<ResourceType, int>()
+            StoredResources = new List<StoredResource>(),
         };
         return ship;
     }
@@ -145,9 +146,11 @@ public class MinerShipManager : SpaceShipManager
     {
         if (storage == null)
         {
-            storage = new ShipStorageManager(levelService, minerShip.StorageLevel, minerShip.StoredResources); 
+            var storedResourcesDictionary = ResourceUtility.ConvertToDictionary(minerShip.StoredResources);
+            storage = new ShipStorageManager(levelService, minerShip.StorageLevel, storedResourcesDictionary);
         }
     }
+
 
     private void CreateDrillIfNotExists()
     {

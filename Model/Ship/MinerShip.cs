@@ -9,8 +9,5 @@ namespace SpaceShipAPI.Model.Ship
     {
         public int DrillLevel { get; set; }
         public int StorageLevel { get; set; }
-
-        [InverseProperty("MinerShip")]
-        public  Dictionary<ResourceType, int> StoredResources { get; set; }
-    }
+        public ICollection<StoredResource> StoredResources { get; set; }    }
 }

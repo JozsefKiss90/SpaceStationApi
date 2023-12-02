@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SpaceshipAPI;
 using SpaceShipAPI.Database;
+using SpaceShipAPI.Repository;
 using SpaceShipAPI.Services.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +25,6 @@ app.Run();
 
 void ConfigureServices(IServiceCollection services)
 {
-    
     /*services.AddControllers(options => 
         options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);*/
     services.AddControllers()
@@ -42,6 +42,9 @@ void ConfigureServices(IServiceCollection services)
     ConfigureAuthentication(services);
     services.AddScoped<ISpaceShipRepository, SpaceShipRepository>();
     services.AddScoped<ISpaceStationRepository, SpaceStationRepository>();
+    services.AddScoped<ILevelRepository, LevelRepository>();
+    services.AddScoped<ILocationRepository, LocationRepository>();
+    services.AddScoped<IMissionRepository, MissionRepository>();
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<ITokenService, TokenService>();
 

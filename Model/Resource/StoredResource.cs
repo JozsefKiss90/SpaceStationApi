@@ -12,12 +12,12 @@ public class StoredResource
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
 
-    public long SpaceStationId { get; set; }
-
     [ForeignKey("SpaceStationId")]
+    public long SpaceStationId { get; set; }
     public SpaceStation SpaceStation { get; set; }
     
     [ForeignKey("MinerShipId")]
+    public long MinerShipId { get; set; }
     public MinerShip MinerShip { get; set; }
     public ResourceType ResourceType { get; set; }
     

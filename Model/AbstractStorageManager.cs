@@ -7,16 +7,16 @@ namespace SpaceShipAPI.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SpaceShipAPI.Model; // Assuming this namespace contains Upgradeable, ResourceType, LevelService
+using SpaceShipAPI.Model; 
 
 public abstract class AbstractStorageManager : Upgradeable
 {
-    protected Dictionary<ResourceType, int> StoredResources { get; }
+    protected ICollection<StoredResource> StoredResources { get; }
 
-    protected AbstractStorageManager(ILevelService levelService, UpgradeableType type, int level, Dictionary<ResourceType, int> storedResources)
+    protected AbstractStorageManager(ILevelService levelService, UpgradeableType type, int level, ICollection<StoredResource> storedResources)
         : base(levelService, type, level)
     {
-        int totalResources = storedResources.Values.Sum();
+        int totalResources = storedResources.Sum(sr => sr.Amount);
         if (totalResources > CurrentLevel.Effect)
         {
             throw new ResourceCapacityExceededException($"Stored resources can't exceed {CurrentLevel.Effect} at this level");
@@ -31,10 +31,10 @@ public abstract class AbstractStorageManager : Upgradeable
 
     public int GetCurrentAvailableStorageSpace()
     {
-        return GetCurrentCapacity() - StoredResources.Values.Sum();
+        return GetCurrentCapacity() - StoredResources.Sum(sr => sr.Amount);
     }
 
-    public Dictionary<ResourceType, int> GetStoredResources()
+    public ICollection<StoredResource> GetStoredResources()
     {
         return StoredResources;
     }
@@ -45,18 +45,40 @@ public abstract class AbstractStorageManager : Upgradeable
         {
             throw new NegativeResourceAdditionException();
         }
-        if (quantity > GetCurrentAvailableStorageSpace())
+
+        int availableSpace = GetCurrentAvailableStorageSpace();
+        if (quantity > availableSpace)
         {
             throw new InsufficientStorageSpaceException();
         }
-        StoredResources[resourceType] = StoredResources.GetValueOrDefault(resourceType) + quantity;
+        
+        var existingResource = StoredResources.FirstOrDefault(sr => sr.ResourceType == resourceType);
+
+        if (existingResource != null)
+        {
+            existingResource.Amount += quantity;
+        }
+        else
+        {
+            StoredResources.Add(new StoredResource { ResourceType = resourceType, Amount = quantity });
+        }
+
         return true;
     }
 
+
     public bool HasResource(ResourceType resourceType, int quantity)
     {
-        return StoredResources.TryGetValue(resourceType, out int storedAmount) && storedAmount >= quantity;
+        var existingResource = StoredResources.FirstOrDefault(sr => sr.ResourceType == resourceType);
+
+        if (existingResource != null)
+        {
+            return existingResource.Amount >= quantity;
+        }
+
+        return false; // Resource not found
     }
+
 
     public bool RemoveResource(ResourceType resourceType, int quantity)
     {
@@ -64,11 +86,23 @@ public abstract class AbstractStorageManager : Upgradeable
         {
             throw new Exception("Can't remove negative resources.");
         }
-        if (!HasResource(resourceType, quantity))
+
+        var existingResource = StoredResources.FirstOrDefault(sr => sr.ResourceType == resourceType);
+
+        if (existingResource != null)
         {
-            throw new Exception("Not enough resource.");
+            if (existingResource.Amount >= quantity)
+            {
+                existingResource.Amount -= quantity;
+                return true;
+            }
+            else
+            {
+                throw new Exception("Not enough resource.");
+            }
         }
-        StoredResources[resourceType] -= quantity;
-        return true;
+
+        throw new Exception("Resource not found.");
     }
+
 }

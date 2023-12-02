@@ -3,6 +3,7 @@ using SpaceShipAPI;
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Repository;
 using SpaceShipAPI.Services;
+using SpaceShipAPI.Utils;
 
 namespace SpaceshipAPI.Spaceship.Model.Station;
 
@@ -92,8 +93,14 @@ public class SpaceStationManager
     public Dictionary<ResourceType, int> GetStoredResources()
     {
         CreateStorageIfNotExists();
-        return storage.GetStoredResources();
+    
+        IDictionary<ResourceType, int> storedResources = ResourceUtility.ConvertToDictionary(storage.GetStoredResources());
+        
+        Dictionary<ResourceType, int> convertedResources = storedResources.ToDictionary(entry => entry.Key, entry => entry.Value);
+
+        return convertedResources;
     }
+
 
     public Dictionary<ResourceType, int> GetStorageUpgradeCost()
     {
