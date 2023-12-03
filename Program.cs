@@ -9,11 +9,11 @@ using Microsoft.OpenApi.Models;
 using SpaceshipAPI;
 using SpaceShipAPI.Database;
 using SpaceShipAPI.Repository;
+using SpaceShipAPI.Services;
 using SpaceShipAPI.Services.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Create a logger for the Program class
 var logger = builder.Services.BuildServiceProvider().GetService<ILogger<Program>>();
 ConfigureServices(builder.Services);
 var app = builder.Build();
@@ -47,6 +47,10 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IMissionRepository, MissionRepository>();
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<ITokenService, TokenService>();
+    services.AddScoped<IShipService, ShipService>();
+    services.AddScoped<ILevelService, LevelService>();
+    services.AddScoped<SpaceShipAPI.Model.Ship.ShipManagerFactory>();
+    services.AddScoped<SpaceShipAPI.Model.Mission.MissionFactory>();
 
    /* services.AddDbContext<DBContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

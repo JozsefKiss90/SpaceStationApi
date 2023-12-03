@@ -15,11 +15,11 @@ namespace SpaceShipAPI.Controllers;
 [Authorize]
 public class SpaceShipController : ControllerBase
 {
-    private readonly ShipService _shipService;
+    private readonly IShipService  _shipService;
     private readonly ILogger<SpaceShipController> _logger;
-    private readonly AppDbContext _userContext;
+    private readonly AppDbContext _userContext; 
 
-    public SpaceShipController(ShipService shipService, AppDbContext userContext, ILogger<SpaceShipController> logger)
+    public SpaceShipController(IShipService  shipService, AppDbContext userContext, ILogger<SpaceShipController> logger)
     {
         _shipService = shipService;
         _userContext = userContext;
@@ -34,7 +34,7 @@ public class SpaceShipController : ControllerBase
     }
 
     
-    [HttpGet]
+    [HttpGet("{stationId}",  Name = "GetShipById")]
     public async Task<IActionResult> GetShipsByStationId(long stationId)
     {
         var spaceShips = await _shipService.GetShipsByStationAsync(stationId, User);
@@ -78,7 +78,7 @@ public class SpaceShipController : ControllerBase
         return Ok(spaceShip);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("colors")]
     public async Task<IActionResult> GetShipColors()
     {
         ShipColor[] colors = _shipService.getColors();

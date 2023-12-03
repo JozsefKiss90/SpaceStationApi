@@ -151,7 +151,6 @@ public class MinerShipManager : SpaceShipManager
         }
     }
 
-
     private void CreateDrillIfNotExists()
     {
         if (drill == null)

@@ -6,6 +6,7 @@ using SpaceShipAPI.Model.Mission;
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship;
 using SpaceshipAPI.Spaceship.Model.Station;
+using SpaceShipAPI.Utils;
 
 namespace SpaceShipAPI.Database;
 
@@ -59,5 +60,7 @@ public class AppDbContext : IdentityDbContext<UserEntity>
             .HasDiscriminator<string>("MissionType")
             .HasValue<MiningMission>("Mining")
             .HasValue<ScoutingMission>("Scouting");
+        
+        LevelSeedData.Seed(builder);
     }
 }

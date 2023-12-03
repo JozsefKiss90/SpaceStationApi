@@ -66,7 +66,7 @@ namespace SpaceShipAPI.Controllers
             return Ok(resources);
         }
 
-        [HttpGet("{baseId}/storage/upgrade")]
+        [HttpGet("{baseId}/storage/upgrade/cost")]
         public async Task<IActionResult> GetStorageUpgradeCost(long baseId)
         {
             var cost = await _stationService.GetStorageUpgradeCostAsync(baseId, User);
@@ -74,6 +74,7 @@ namespace SpaceShipAPI.Controllers
         }
 
         [HttpPost("{baseId}/storage/upgrade")]
+        [ActionName("UpgradeStorage")]
         public async Task<IActionResult> UpgradeStorage(long baseId)
         {
             var result = await _stationService.UpgradeStorageAsync(baseId, User);

@@ -12,7 +12,7 @@ public abstract class Upgradeable
     protected Upgradeable(ILevelService levelService, UpgradeableType type, int level)
     {
         this.levelService = levelService;
-        this.CurrentLevel = levelService.GetLevelByTypeAndLevel(type, level);
+        CurrentLevel = levelService.GetLevelByTypeAndLevel(type, level);
     }
 
     public bool IsFullyUpgraded()

@@ -14,7 +14,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-public class ShipService
+public class ShipService : IShipService
 {
     private readonly UserManager<UserEntity> _userManager;
     private readonly ISpaceShipRepository _spaceShipRepository;
@@ -22,7 +22,7 @@ public class ShipService
     private readonly ShipManagerFactory _shipManagerFactory;
     private readonly MissionFactory _missionFactory;
     private readonly ILevelService _levelService;
-    private readonly MissionRepository _missionRepository;
+    private readonly IMissionRepository _missionRepository;
 
     public ShipService(
         UserManager<UserEntity> userManager,
@@ -31,7 +31,7 @@ public class ShipService
         ShipManagerFactory shipManagerFactory,
         MissionFactory missionFactory,
         ILevelService levelService,
-        MissionRepository missionRepository
+        IMissionRepository missionRepository
         )
     {
         _userManager = userManager;
@@ -108,7 +108,7 @@ public class ShipService
             spaceShip = MinerShipManager.CreateNewMinerShip(_levelService, newShip.name, newShip.color);
             spaceShip.User = currentUser;
         } else if (newShip.type == ShipType.SCOUT)
-        {
+        { 
             spaceShip = ScoutShipManager.CreateNewScoutShip(_levelService, newShip.name, newShip.color);
             spaceShip.User = currentUser;
         } else {

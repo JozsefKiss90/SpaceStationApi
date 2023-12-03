@@ -24,7 +24,6 @@ public class Level
     [Column("IsMax")]
     public bool Max { get; set; }
 
-    // Define a one-to-many relationship
     public virtual ICollection<LevelCost> Costs { get; set; }
 
     public Level() 
