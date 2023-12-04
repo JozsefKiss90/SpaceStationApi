@@ -2,13 +2,13 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SpaceshipAPI;
 using SpaceShipAPI.Database;
 using SpaceShipAPI.Repository;
+using SpaceshipAPI.Services;
 using SpaceShipAPI.Services;
 using SpaceShipAPI.Services.Authentication;
 
@@ -48,6 +48,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<ITokenService, TokenService>();
     services.AddScoped<IShipService, ShipService>();
+    services.AddScoped<ISpaceStationService, SpaceStationService>();
     services.AddScoped<ILevelService, LevelService>();
     services.AddScoped<SpaceShipAPI.Model.Ship.ShipManagerFactory>();
     services.AddScoped<SpaceShipAPI.Model.Mission.MissionFactory>();
@@ -152,7 +153,7 @@ void ConfigureAuthentication(IServiceCollection services)
 
 void AddRoles()
 {
-    using var scope = app.Services.CreateScope(); // RoleManager is a scoped service, therefore we need a scope instance to access it
+    using var scope = app.Services.CreateScope(); 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
     var tAdmin = CreateAdminRole(roleManager);
@@ -164,12 +165,12 @@ void AddRoles()
 
 async Task CreateAdminRole(RoleManager<IdentityRole> roleManager)
 {
-    await roleManager.CreateAsync(new IdentityRole("Admin")); //The role string should better be stored as a constant or a value in appsettings
+    await roleManager.CreateAsync(new IdentityRole("Admin")); 
 }
 
 async Task CreateUserRole(RoleManager<IdentityRole> roleManager)
 {
-    await roleManager.CreateAsync(new IdentityRole("User")); //The role string should better be stored as a constant or a value in appsettings
+    await roleManager.CreateAsync(new IdentityRole("User"));
 }
 
 void AddAdmin()

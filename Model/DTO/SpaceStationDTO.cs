@@ -1,5 +1,5 @@
-﻿namespace DefaultNamespace;
+﻿namespace SpaceShipAPI.Model.DTO;
 
-public record SpaceStationDTO(long id, String name, HangarDTO hangar, SpaceStationStorageDTO storage) {
+public record SpaceStationDTO(long Id, String Name, HangarDTO Hangar, SpaceStationStorageDTO Storage) {
 
 }

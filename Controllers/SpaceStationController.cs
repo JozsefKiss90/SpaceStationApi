@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SpaceShipAPI.Model.DTO.Ship;
+using SpaceshipAPI.Services;
+using SpaceShipAPI.Services;
+using SpaceshipAPI.Spaceship.Model.Station;
 
 namespace SpaceShipAPI.Controllers
 {
@@ -9,9 +12,9 @@ namespace SpaceShipAPI.Controllers
     [Authorize]
     public class SpaceStationController : ControllerBase
     {
-        private readonly SpaceStationService _stationService;
+        private readonly ISpaceStationService _stationService;
 
-        public SpaceStationController(SpaceStationService stationService)
+        public SpaceStationController(ISpaceStationService stationService)
         {
             _stationService = stationService;
         }
@@ -28,6 +31,18 @@ namespace SpaceShipAPI.Controllers
         {
             var spaceStationData = await _stationService.GetBaseDataForCurrentUserAsync(User);
             return Ok(spaceStationData);
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> CreateAsync(String name)
+        {
+            if (User == null || !User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+
+            var SpaceStation = await _stationService.CreateAsync(name, User);
+            return Ok(SpaceStation);
         }
 
         [HttpPost("{baseId}/add/resources")]

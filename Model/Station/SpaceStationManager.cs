@@ -1,7 +1,6 @@
-﻿using DefaultNamespace;
-using SpaceShipAPI;
+﻿using SpaceShipAPI;
+using SpaceShipAPI.Model.DTO;
 using SpaceshipAPI.Model.Ship;
-using SpaceShipAPI.Repository;
 using SpaceShipAPI.Services;
 using SpaceShipAPI.Utils;
 

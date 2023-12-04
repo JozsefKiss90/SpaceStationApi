@@ -1,5 +1,4 @@
-﻿using DefaultNamespace;
-using Microsoft.EntityFrameworkCore; 
+﻿using Microsoft.EntityFrameworkCore; 
 using SpaceshipAPI;
 using SpaceShipAPI.Database;
 using SpaceShipAPI.Model.DTO;
@@ -23,10 +22,10 @@ public class SpaceStationRepository : ISpaceStationRepository
             .ToListAsync();
 
         return spaceStation.Select(s => new SpaceStationDTO(
-            id: s.Id,
-            name: s.Name,
-            hangar: null,
-            storage: null
+            Id: s.Id,
+            Name: s.Name,
+            Hangar: null,
+            Storage: null
         ));
     }
     
@@ -50,10 +49,11 @@ public class SpaceStationRepository : ISpaceStationRepository
 
         return spaceStation;
     }
-    public async Task CreateAsync(SpaceStation spaceStation)
+    public async  Task<SpaceStation> CreateAsync(SpaceStation spaceStation)
     {
         _context.SpaceStation.Add(spaceStation);
         await _context.SaveChangesAsync();
+        return spaceStation;
     }
 
     public async Task UpdateAsync(SpaceStation spaceStation)

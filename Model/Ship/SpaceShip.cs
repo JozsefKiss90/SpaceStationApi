@@ -24,7 +24,6 @@ namespace SpaceshipAPI.Model.Ship
         
         [ForeignKey("UserId")]
         public string? UserId { get; set; }
-
         public UserEntity User { get; set; }
         
         [ForeignKey("CurrentMissionId")]

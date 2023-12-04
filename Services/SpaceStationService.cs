@@ -1,16 +1,14 @@
 ﻿using System.Security.Claims;
-using DefaultNamespace;
 using Microsoft.AspNetCore.Identity;
 using SpaceshipAPI;
-using SpaceShipAPI;
 using SpaceShipAPI.Model.DTO;
 using SpaceShipAPI.Model.DTO.Ship;
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship;
-using SpaceShipAPI.Services;
+using SpaceshipAPI.Services;
 using SpaceshipAPI.Spaceship.Model.Station;
-
-public class SpaceStationService
+namespace SpaceShipAPI.Services;
+public class SpaceStationService : ISpaceStationService
 {
     private readonly UserManager<UserEntity> _userManager;
     private readonly ISpaceStationRepository _spaceStationRepository;
@@ -18,7 +16,7 @@ public class SpaceStationService
     private readonly ShipManagerFactory _shipManagerFactory;
     private readonly ILevelService _levelService;
     
-    public SpaceStationService(
+    public SpaceStationService (
         UserManager<UserEntity> userManager,
         ISpaceStationRepository spaceStationRepository,
         ISpaceShipRepository spaceShipRepository,
@@ -40,6 +38,17 @@ public class SpaceStationService
         return stationManager.GetStationDTO();
     }
     
+    public async Task<SpaceStationDTO> CreateAsync(string name, ClaimsPrincipal userPrincipal)
+    {
+        var currentUser = await GetCurrentUserAsync(userPrincipal);
+
+        SpaceStation spaceStation = SpaceStationManager.CreateNewSpaceStation(name);
+        spaceStation.User = currentUser;
+
+        var createdStation = await _spaceStationRepository.CreateAsync(spaceStation);
+        return ConvertToDTO(createdStation);
+    }
+
 
     public async Task<bool> AddResourcesAsync(long id, Dictionary<ResourceType, int> resources, ClaimsPrincipal user)
     { 
@@ -196,6 +205,22 @@ public class SpaceStationService
     {
         var userId = GetUserIdFromPrincipal(user);
         return await _userManager.FindByIdAsync(userId);
+    }
+    
+    private async Task<UserEntity> GetCurrentUserAsync(ClaimsPrincipal userPrincipal)
+    {
+        return await _userManager.GetUserAsync(userPrincipal);
+    }
+    
+    public SpaceStationDTO ConvertToDTO(SpaceStation station)
+    {
+        var stationManager = new SpaceStationManager(station, _levelService);
+        return new SpaceStationDTO(
+            station.Id,
+            station.Name,
+            stationManager.GetHangarDTO(),
+            stationManager.GetStorageDTO()
+        );
     }
 
 }

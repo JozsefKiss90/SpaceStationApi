@@ -13,11 +13,12 @@ public class StoredResource
     public long Id { get; set; }
 
     [ForeignKey("SpaceStationId")]
+   // [JsonIgnore]
     public long SpaceStationId { get; set; }
     public SpaceStation SpaceStation { get; set; }
     
     [ForeignKey("MinerShipId")]
-    public long MinerShipId { get; set; }
+    public long? MinerShipId { get; set; }
     public MinerShip MinerShip { get; set; }
     public ResourceType ResourceType { get; set; }
     

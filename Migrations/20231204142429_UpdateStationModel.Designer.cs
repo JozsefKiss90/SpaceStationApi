@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SpaceShipAPI.Database;
@@ -11,9 +12,11 @@ using SpaceShipAPI.Database;
 namespace SpaceShipAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231204142429_UpdateStationModel")]
+    partial class UpdateStationModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -758,7 +761,7 @@ namespace SpaceShipAPI.Migrations
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
 
-                    b.Property<long?>("MinerShipId")
+                    b.Property<long>("MinerShipId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("ResourceType")
@@ -973,7 +976,9 @@ namespace SpaceShipAPI.Migrations
                 {
                     b.HasOne("SpaceShipAPI.Model.Ship.MinerShip", "MinerShip")
                         .WithMany("StoredResources")
-                        .HasForeignKey("MinerShipId");
+                        .HasForeignKey("MinerShipId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SpaceshipAPI.Spaceship.Model.Station.SpaceStation", "SpaceStation")
                         .WithMany("StoredResources")

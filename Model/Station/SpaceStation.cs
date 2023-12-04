@@ -16,12 +16,13 @@ namespace SpaceshipAPI.Spaceship.Model.Station
         public int HangarLevel { get; set; }
         
         [InverseProperty("SpaceStation")]
-        public ICollection<SpaceShip> Hangar { get; set; }
+        public ICollection<SpaceShip>? Hangar { get; set; }
 
         [InverseProperty("SpaceStation")]
-        public ICollection<StoredResource> StoredResources { get; set; }
+        public ICollection<StoredResource>? StoredResources { get; set; }
 
-        [ForeignKey("UserId")]
+        [ForeignKey("UserId")] 
+        public string? UserId { get; set; }
         public UserEntity User { get; set; }
     }
 }

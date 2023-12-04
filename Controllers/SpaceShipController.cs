@@ -12,7 +12,7 @@ namespace SpaceShipAPI.Controllers;
 
 [Route("api/spaceships")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class SpaceShipController : ControllerBase
 {
     private readonly IShipService  _shipService;
@@ -29,10 +29,14 @@ public class SpaceShipController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllAsync()
     {
+        if (User == null || !User.Identity.IsAuthenticated)
+        {
+            return Unauthorized();
+        }
+
         var spaceShips = await _shipService.GetAllShips(User);
         return Ok(spaceShips);
     }
-
     
     [HttpGet("{stationId}",  Name = "GetShipById")]
     public async Task<IActionResult> GetShipsByStationId(long stationId)
@@ -53,7 +57,8 @@ public class SpaceShipController : ControllerBase
         return Ok(spaceShip);
     }
 
-    [HttpPost, Authorize(Roles = "User")]  
+    [HttpPost]  
+    //[HttpPost, Authorize(Roles = "User")]
     public async Task<IActionResult> CreateAsync([FromBody] NewShipDTO newShipDTO)
     {
         if (newShipDTO == null)
