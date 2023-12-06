@@ -8,7 +8,7 @@ using MissionNS = SpaceShipAPI.Model.Mission;
 namespace SpaceShipAPI.Model.Ship;
 
 
-public abstract class SpaceShipManager
+public abstract class SpaceShipManager : ISpaceShipManager
 {
     protected readonly ILevelService levelService;
     protected readonly SpaceShip spaceShip;
@@ -20,6 +20,9 @@ public abstract class SpaceShipManager
         this.levelService = levelService;
         this.spaceShip = spaceShip;
     }
+    
+    public abstract SpaceShip CreateNewShip(ILevelService levelService, string name, ShipColor color);
+
 
     public SpaceShip GetShip()
     {

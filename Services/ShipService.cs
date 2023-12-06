@@ -19,19 +19,21 @@ public class ShipService : IShipService
     private readonly UserManager<UserEntity> _userManager;
     private readonly ISpaceShipRepository _spaceShipRepository;
     private readonly ISpaceStationRepository _spaceStationRepository;
-    private readonly ShipManagerFactory _shipManagerFactory;
-    private readonly MissionFactory _missionFactory;
+    private readonly IShipManagerFactory _shipManagerFactory;
+    private readonly IMissionFactory _missionFactory;
     private readonly ILevelService _levelService;
     private readonly IMissionRepository _missionRepository;
-
+    private IMinerShipManager _minerShipManager;
+    
     public ShipService(
         UserManager<UserEntity> userManager,
         ISpaceShipRepository spaceShipRepository,
         ISpaceStationRepository spaceStationRepository,
-        ShipManagerFactory shipManagerFactory,
-        MissionFactory missionFactory,
+        IShipManagerFactory shipManagerFactory,
+        IMissionFactory missionFactory,
         ILevelService levelService,
-        IMissionRepository missionRepository
+        IMissionRepository missionRepository,
+        IMinerShipManager minerShipManager
         )
     {
         _userManager = userManager;
@@ -41,6 +43,7 @@ public class ShipService : IShipService
         _levelService = levelService;
         _missionRepository = missionRepository;
         _spaceStationRepository = spaceStationRepository;
+        _minerShipManager = minerShipManager;
     }
 
     public async Task<SpaceShip> GetByIdAsync(long id)
@@ -75,7 +78,7 @@ public class ShipService : IShipService
             throw new KeyNotFoundException($"No station found with id {stationId}");
         }
 
-        if (user.IsInRole("Admin") || station.User.Id == currentUser.Id)
+        if (user.IsInRole("Admin") || station.User.Id == currentUser.Id) //line 81
         {
             var ships = await _spaceShipRepository.GetByStationIdAsync(stationId);
             return ships.Select(ship => new ShipDTO(ship));
@@ -101,16 +104,16 @@ public class ShipService : IShipService
 
     public async Task<SpaceShip> CreateShip(NewShipDTO newShip, ClaimsPrincipal userPrincipal)
     {
-        var currentUser = await GetCurrentUserAsync(userPrincipal);
+        var currentUser = await _userManager.GetUserAsync(userPrincipal);
         if (currentUser == null)
         {
-            throw new InvalidOperationException("User not found");
-        }
+            throw new InvalidOperationException("User not found"); 
+        } 
 
         SpaceShip spaceShip;
         if (newShip.type == ShipType.MINER)
         {
-            spaceShip = MinerShipManager.CreateNewMinerShip(_levelService, newShip.name, newShip.color);
+            spaceShip = _minerShipManager.CreateNewShip(_levelService, newShip.name, newShip.color); //still null
         } 
         else if (newShip.type == ShipType.SCOUT)
         { 
@@ -121,10 +124,10 @@ public class ShipService : IShipService
             throw new Exception("Ship type not recognized");
         }
 
+        spaceShip = await _spaceShipRepository.CreateAsync(spaceShip); 
+        //had to move currentUser and Id assigment down
         spaceShip.User = currentUser;
         spaceShip.UserId = currentUser.Id;
-
-        spaceShip = await _spaceShipRepository.CreateAsync(spaceShip);
         return spaceShip; 
     }
     
@@ -171,7 +174,7 @@ public class ShipService : IShipService
         return true;
     }
 
-    public async Task UpdateMissionIfExists(SpaceShipManager spaceShipManager)
+    public async Task UpdateMissionIfExists(ISpaceShipManager spaceShipManager)
     {
         var currentMission = spaceShipManager.GetCurrentMission();
         if (currentMission != null)

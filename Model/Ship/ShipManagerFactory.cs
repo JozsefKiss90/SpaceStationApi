@@ -4,7 +4,7 @@ using SpaceShipAPI.Services;
 
 namespace SpaceShipAPI.Model.Ship;
 
-public class ShipManagerFactory
+public class ShipManagerFactory : IShipManagerFactory
 {
     private readonly ILevelService levelService;
 
@@ -13,7 +13,7 @@ public class ShipManagerFactory
         this.levelService = levelService;
     }
 
-    public SpaceShipManager GetSpaceShipManager(SpaceShip ship)
+    public ISpaceShipManager  GetSpaceShipManager(SpaceShip ship)
     {
         switch (ship)
         {

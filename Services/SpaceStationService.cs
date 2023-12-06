@@ -13,15 +13,17 @@ public class SpaceStationService : ISpaceStationService
     private readonly UserManager<UserEntity> _userManager;
     private readonly ISpaceStationRepository _spaceStationRepository;
     private readonly ISpaceShipRepository _spaceShipRepository;
-    private readonly ShipManagerFactory _shipManagerFactory;
+    private readonly IShipManagerFactory _shipManagerFactory;
     private readonly ILevelService _levelService;
-    
+    private readonly ISpaceStationManager _spaceStationManager;
+
     public SpaceStationService (
         UserManager<UserEntity> userManager,
         ISpaceStationRepository spaceStationRepository,
         ISpaceShipRepository spaceShipRepository,
-        ShipManagerFactory shipManagerFactory,
-        ILevelService levelService
+        IShipManagerFactory shipManagerFactory,
+        ILevelService levelService,
+        ISpaceStationManager spaceStationManager
         )
     {
         _userManager = userManager;
@@ -29,20 +31,21 @@ public class SpaceStationService : ISpaceStationService
         _spaceShipRepository = spaceShipRepository;
         _shipManagerFactory = shipManagerFactory;
         _levelService = levelService;
+        _spaceStationManager = spaceStationManager;
     }
 
     public async Task<SpaceStationDTO> GetBaseByIdAsync(long stationId, ClaimsPrincipal user)
     {
         var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
-        var stationManager = new SpaceStationManager(station, _levelService);
+        var stationManager = new SpaceStationManager(station, _levelService, new HangarManager(_levelService, 1, new HashSet<SpaceShip>(station.Hangar)));
         return stationManager.GetStationDTO();
     }
     
     public async Task<SpaceStationDTO> CreateAsync(string name, ClaimsPrincipal userPrincipal)
     {
         var currentUser = await GetCurrentUserAsync(userPrincipal);
-
-        SpaceStation spaceStation = SpaceStationManager.CreateNewSpaceStation(name);
+    
+        SpaceStation spaceStation = _spaceStationManager.CreateNewSpaceStation(name);
         spaceStation.User = currentUser;
 
         var createdStation = await _spaceStationRepository.CreateAsync(spaceStation);
@@ -53,11 +56,10 @@ public class SpaceStationService : ISpaceStationService
     public async Task<bool> AddResourcesAsync(long id, Dictionary<ResourceType, int> resources, ClaimsPrincipal user)
     { 
         var station = await GetStationByIdAndCheckAccessAsync(id, user);
-        SpaceStationManager stationManager = new SpaceStationManager(station, _levelService);
         int value;
         foreach (var resource in resources.Keys)
         {
-            stationManager.AddResource(resource, resources[resource]);
+            _spaceStationManager.AddResource(resource, resources[resource]);
         }
         await _spaceStationRepository.UpdateAsync(station);
         return true;
@@ -77,18 +79,17 @@ public class SpaceStationService : ISpaceStationService
     public async Task<long> AddShipAsync(long stationId, NewShipDTO newShipDTO, ClaimsPrincipal user)
     {
         var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
-        var stationManager = new SpaceStationManager(station, _levelService);
         
         SpaceShip ship;
         if (newShipDTO.type == ShipType.MINER)
         {
             ship = MinerShipManager.CreateNewMinerShip(_levelService, newShipDTO.name, newShipDTO.color);
-            stationManager.AddNewShip(ship, ShipType.MINER);
+            _spaceStationManager.AddNewShip(ship, ShipType.MINER);
         }
         else if (newShipDTO.type == ShipType.SCOUT)
         {
             ship = ScoutShipManager.CreateNewScoutShip(_levelService, newShipDTO.name, newShipDTO.color);
-            stationManager.AddNewShip(ship, ShipType.SCOUT);
+            _spaceStationManager.AddNewShip(ship, ShipType.SCOUT);
         }
         else
         {
@@ -101,31 +102,24 @@ public class SpaceStationService : ISpaceStationService
     
     public async Task<Dictionary<ResourceType, int>> GetStorageUpgradeCostAsync(long stationId, ClaimsPrincipal user)
     {
-        var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
-        var stationManager = new SpaceStationManager(station, _levelService);
-        return stationManager.GetStorageUpgradeCost();
+        return _spaceStationManager.GetStorageUpgradeCost();
     }
 
     
     public async Task<SpaceStationStorageDTO> GetStationStorageAsync(long stationId, ClaimsPrincipal user)
     {
-        var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
-        var stationManager = new SpaceStationManager(station, _levelService);
-        return stationManager.GetStorageDTO();
+        return _spaceStationManager.GetStorageDTO();
     }
 
     public async Task<HangarDTO> GetStationHangarAsync(long stationId, ClaimsPrincipal user)
     {
-        var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
-        var stationManager = new SpaceStationManager(station, _levelService);
-        return stationManager.GetHangarDTO();
+        return _spaceStationManager.GetHangarDTO();
     }
     
     public async Task<bool> UpgradeStorageAsync(long stationId, ClaimsPrincipal user)
     {
         var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
-        var stationManager = new SpaceStationManager(station, _levelService);
-        if (stationManager.UpgradeStorage())
+        if (_spaceStationManager.UpgradeStorage())
         {
             await _spaceStationRepository.UpdateAsync(station);
             return true;
@@ -135,16 +129,13 @@ public class SpaceStationService : ISpaceStationService
     
     public async Task<Dictionary<ResourceType, int>> GetHangarUpgradeCostAsync(long stationId, ClaimsPrincipal user)
     {
-        var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
-        var stationManager = new SpaceStationManager(station, _levelService);
-        return stationManager.GetHangarUpgradeCost();
+        return _spaceStationManager.GetHangarUpgradeCost();
     }
     
     public async Task<bool> UpgradeHangarAsync(long stationId, ClaimsPrincipal user)
     {
         var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
-        var stationManager = new SpaceStationManager(station, _levelService);
-        if (stationManager.UpgradeHangar())
+        if (_spaceStationManager.UpgradeHangar())
         {
             await _spaceStationRepository.UpdateAsync(station);
             return true;
@@ -160,10 +151,8 @@ public class SpaceStationService : ISpaceStationService
         {
             throw new KeyNotFoundException("No such ship on this station");
         }
-
-        var stationManager = new SpaceStationManager(station, _levelService);
-        var spaceShipManager = _shipManagerFactory.GetSpaceShipManager(ship);
-        if (stationManager.AddResourcesFromShip((MinerShipManager)spaceShipManager, resources))
+       
+        if (_spaceStationManager.AddResourcesFromShip((MinerShipManager)_spaceStationManager, resources))
         {
             await _spaceStationRepository.UpdateAsync(station);
             return true;
@@ -173,9 +162,7 @@ public class SpaceStationService : ISpaceStationService
     
     public async Task<Dictionary<ResourceType, int>> GetStoredResourcesAsync(long stationId, ClaimsPrincipal user)
     {
-        var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
-        var stationManager = new SpaceStationManager(station, _levelService);
-        return stationManager.GetStoredResources();
+        return _spaceStationManager.GetStoredResources();
     }
 
     private async Task<SpaceStation> GetStationByIdAndCheckAccessAsync(long stationId, ClaimsPrincipal user)
@@ -214,13 +201,11 @@ public class SpaceStationService : ISpaceStationService
     
     public SpaceStationDTO ConvertToDTO(SpaceStation station)
     {
-        var stationManager = new SpaceStationManager(station, _levelService);
         return new SpaceStationDTO(
             station.Id,
             station.Name,
-            stationManager.GetHangarDTO(),
-            stationManager.GetStorageDTO()
+            _spaceStationManager.GetHangarDTO(),
+            _spaceStationManager.GetStorageDTO()
         );
     }
-
 }

@@ -1,14 +1,12 @@
 ﻿using SpaceShipAPI.Model.Location;
 using SpaceShipAPI.Model.Ship;
+using SpaceShipAPI.Model.Ship.ShipParts;
 
 namespace SpaceShipAPI.Model.Mission;
 
-using SpaceShipAPI.Model;
-using SpaceShipAPI.Model.Mission;
-using SpaceShipAPI.Services;
 using System;
 
-public class MissionFactory
+public class MissionFactory : IMissionFactory
 {
     private readonly ShipManagerFactory _shipManagerFactory;
     protected readonly Random random;

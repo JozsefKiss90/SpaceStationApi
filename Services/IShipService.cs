@@ -16,7 +16,7 @@ namespace SpaceShipAPI.Services
         Task<SpaceShip> UpdateAsync(SpaceShip ship);
         Task<ShipDetailDTO> UpgradeShipPartAsync(long id, ShipPart part);
         Task<bool> DeleteShipByIdAsync(long id);
-        Task UpdateMissionIfExists(SpaceShipManager spaceShipManager);
+        Task UpdateMissionIfExists(ISpaceShipManager spaceShipManager);
         ShipColor[] getColors();
         Task DeleteAsync(long id);
     }

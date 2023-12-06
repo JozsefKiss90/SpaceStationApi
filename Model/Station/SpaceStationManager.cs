@@ -10,23 +10,25 @@ using SpaceShipAPI.Model.Ship;
 using System;
 using System.Collections.Generic;
 
-public class SpaceStationManager
+public class SpaceStationManager : ISpaceStationManager
 {
     private readonly SpaceStation station;
     private readonly ILevelService levelService;
-    private HangarManager hangar;
+    private HangarManager hangar { get; set; }
     private StationStorageManager storage;
 
     public SpaceStationManager(
         SpaceStation station, 
-        ILevelService levelService
+        ILevelService levelService,
+        HangarManager _hangar 
         )
     {
         this.station = station;
         this.levelService = levelService;
+        this.hangar = _hangar;
     }
 
-    public static SpaceStation CreateNewSpaceStation(string name)
+    public SpaceStation CreateNewSpaceStation(string name)
     {
         var station = new SpaceStation
         {
@@ -35,19 +37,19 @@ public class SpaceStationManager
             Hangar = new HashSet<SpaceShip>(),
             StorageLevel = 1,
             StoredResources = new List<StoredResource>()
-            
-        }; 
+        };
+
         foreach (var resourceType in Enum.GetValues(typeof(ResourceType)).Cast<ResourceType>())
         {
             station.StoredResources.Add(new StoredResource
             {
                 ResourceType = resourceType,
-                Amount = 0 
+                Amount = 0
             });
         }
-
         return station;
     }
+
 
     private bool HasEnoughResource(Dictionary<ResourceType, int> cost)
     {
@@ -182,7 +184,7 @@ public class SpaceStationManager
         return HangarDTOFactory.Create(hangar);
     }
 
-    private void CreateHangarIfNotExists()
+    public void CreateHangarIfNotExists()
     {
         if (hangar == null)
         {
@@ -190,7 +192,7 @@ public class SpaceStationManager
         }
     }
 
-    private void CreateStorageIfNotExists()
+    public void CreateStorageIfNotExists()
     {
         if (storage == null)
         {

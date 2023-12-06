@@ -10,9 +10,9 @@ public abstract class MissionManager
     protected readonly Mission mission;
 
     protected readonly Random random;
-    protected SpaceShipManager shipManager;
+    protected ISpaceShipManager shipManager;
     protected readonly DateTime clock;
-    protected MissionManager(Mission mission, Random random, SpaceShipManager spaceShipManager)
+    protected MissionManager(Mission mission, Random random, ISpaceShipManager spaceShipManager)
     {
         this.mission = mission;
         this.random = random;
@@ -24,7 +24,7 @@ public abstract class MissionManager
         this.shipManager = spaceShipManager;
     }
 
-    public void SetShipManager(SpaceShipManager spaceShipManager)
+    public void SetShipManager(ISpaceShipManager spaceShipManager)
     {
         if (!mission.Ship.Equals(spaceShipManager.GetShip()))
         {
@@ -134,7 +134,7 @@ public abstract class MissionManager
         PushNewEvent(travelEvent);
     }
     
-    protected static long CalculateTravelDurationInSecs(SpaceShipManager ship, int distanceFromBase)
+    protected static long CalculateTravelDurationInSecs(ISpaceShipManager ship, int distanceFromBase)
     {
         double speedInDistancePerHour = ship.GetSpeed();
         int hourToSec = 3600; 

@@ -8,7 +8,7 @@ using SpaceShipAPI.Model.Exceptions;
 using System;
 using System.Collections.Generic;
 
-public class HangarManager : Upgradeable
+public class HangarManager : Upgradeable, IHangarManager
 {
     private static readonly UpgradeableType Type = UpgradeableType.HANGAR;
     private readonly HashSet<SpaceShip> shipSet;

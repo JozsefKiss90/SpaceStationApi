@@ -1,5 +1,6 @@
 ﻿using SpaceShipAPI.Model.DTO.Ship;
 using SpaceShipAPI.Model.DTO.Ship.Part;
+using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship.ShipParts;
 using SpaceShipAPI.Repository;
 using SpaceShipAPI.Services;
@@ -11,7 +12,7 @@ using System;
 using System.Collections.Generic;
 
 
-public class MinerShipManager : SpaceShipManager
+public class MinerShipManager : SpaceShipManager, IMinerShipManager
 {
     private static readonly HashSet<ShipPart> PARTS = new HashSet<ShipPart> { ShipPart.ENGINE, ShipPart.SHIELD, ShipPart.DRILL, ShipPart.STORAGE };
     private readonly MinerShip minerShip;
@@ -23,6 +24,12 @@ public class MinerShipManager : SpaceShipManager
     {
         this.minerShip = minerShip;
     } 
+    
+    public override SpaceShip CreateNewShip(ILevelService levelService, string name, ShipColor color)
+    {
+        return CreateNewMinerShip(levelService, name, color);
+    }
+
 
     public static MinerShip CreateNewMinerShip(ILevelService levelService, string name, ShipColor color)
     {
@@ -39,7 +46,7 @@ public class MinerShipManager : SpaceShipManager
         };
         return ship;
     }
-
+   
     public override ShipDetailDTO GetDetailedDTO()
     {
         CreateEngineIfNotExists(); 

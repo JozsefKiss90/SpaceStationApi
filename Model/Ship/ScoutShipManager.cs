@@ -1,5 +1,6 @@
 ﻿using SpaceShipAPI.Model.DTO.Ship;
 using SpaceShipAPI.Model.DTO.Ship.Part;
+using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship.ShipParts;
 using SpaceShipAPI.Services;
 
@@ -39,6 +40,11 @@ public class ScoutShipManager : SpaceShipManager
     {
         CreateScannerIfNotExists();
         return scanner.Efficiency;
+    }
+
+    public override SpaceShip CreateNewShip(ILevelService levelService, string name, ShipColor color)
+    {
+        throw new NotImplementedException();
     }
 
     public override ShipDetailDTO GetDetailedDTO()
