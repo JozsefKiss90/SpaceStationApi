@@ -16,10 +16,16 @@ public class HangarManager : Upgradeable, IHangarManager
     public HangarManager(ILevelService levelService, int currentLevel, HashSet<SpaceShip> shipSet) 
         : base(levelService, Type, currentLevel)
     {
-        if (shipSet.Count > CurrentLevel.Effect)
+        if (shipSet == null)
         {
-            throw new Exception($"Ships in hangar can't exceed {CurrentLevel.Effect} at this level.");
+            throw new ArgumentNullException(nameof(shipSet));
         }
+
+        if (CurrentLevel == null || shipSet.Count > CurrentLevel.Effect)
+        {
+            throw new InvalidOperationException($"Current level is not properly initialized.");
+        }
+
         this.shipSet = shipSet;
     }
 

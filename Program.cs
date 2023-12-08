@@ -8,7 +8,6 @@ using Microsoft.OpenApi.Models;
 using SpaceshipAPI;
 using SpaceShipAPI.Database;
 using SpaceShipAPI.Repository;
-using SpaceshipAPI.Services;
 using SpaceShipAPI.Services;
 using SpaceShipAPI.Services.Authentication;
 

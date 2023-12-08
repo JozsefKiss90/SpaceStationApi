@@ -5,7 +5,6 @@ using SpaceShipAPI.Model.DTO;
 using SpaceShipAPI.Model.DTO.Ship;
 using SpaceshipAPI.Model.Ship;
 using SpaceShipAPI.Model.Ship;
-using SpaceshipAPI.Services;
 using SpaceshipAPI.Spaceship.Model.Station;
 namespace SpaceShipAPI.Services;
 public class SpaceStationService : ISpaceStationService
@@ -37,8 +36,12 @@ public class SpaceStationService : ISpaceStationService
     public async Task<SpaceStationDTO> GetBaseByIdAsync(long stationId, ClaimsPrincipal user)
     {
         var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
-        var stationManager = new SpaceStationManager(station, _levelService, new HangarManager(_levelService, 1, new HashSet<SpaceShip>(station.Hangar)));
-        return stationManager.GetStationDTO();
+        if (station.Hangar == null)
+        {
+            station.Hangar = new HashSet<SpaceShip>();
+        }
+        //var stationManager = new SpaceStationManager(station, _levelService, new HangarManager(_levelService, 1, new HashSet<SpaceShip>(station.Hangar)));
+        return _spaceStationManager.GetStationDTO();
     }
     
     public async Task<SpaceStationDTO> CreateAsync(string name, ClaimsPrincipal userPrincipal)
@@ -165,7 +168,7 @@ public class SpaceStationService : ISpaceStationService
         return _spaceStationManager.GetStoredResources();
     }
 
-    private async Task<SpaceStation> GetStationByIdAndCheckAccessAsync(long stationId, ClaimsPrincipal user)
+    public async Task<SpaceStation> GetStationByIdAndCheckAccessAsync(long stationId, ClaimsPrincipal user)
     {
         var station = await _spaceStationRepository.GetByIdAsync(stationId);
         if (station == null)
@@ -175,7 +178,7 @@ public class SpaceStationService : ISpaceStationService
 
         var currentUser = GetCurrentUser(user);
         var isAdmin = user.IsInRole("Admin"); 
-        if (!isAdmin && currentUser.Id != int.Parse(station.User.Id))
+        if (!isAdmin && currentUser.Id.ToString() != station.User.Id)
         {
             throw new UnauthorizedAccessException("You don't have authority to access this station");
         }
