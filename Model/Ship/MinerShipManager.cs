@@ -11,7 +11,6 @@ namespace SpaceShipAPI.Model.Ship;
 using System;
 using System.Collections.Generic;
 
-
 public class MinerShipManager : SpaceShipManager, IMinerShipManager
 {
     private static readonly HashSet<ShipPart> PARTS = new HashSet<ShipPart> { ShipPart.ENGINE, ShipPart.SHIELD, ShipPart.DRILL, ShipPart.STORAGE };

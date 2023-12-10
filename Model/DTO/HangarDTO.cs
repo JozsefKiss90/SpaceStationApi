@@ -7,7 +7,7 @@ public record HangarDTO(HashSet<ShipDTO> Ships, int Level, int Capacity, int Fre
 
 public class HangarDTOFactory
 {
-   public static HangarDTO Create(HangarManager hangarManager)
+   public static HangarDTO Create(IHangarManager hangarManager)
    {
       var ships = GetAllShipDTOs(hangarManager);
       int level = hangarManager.GetCurrentLevel();
@@ -18,7 +18,7 @@ public class HangarDTOFactory
       return new HangarDTO(ships, level, capacity, freeDocks, fullyUpgraded);
    }
 
-   private static HashSet<ShipDTO> GetAllShipDTOs(HangarManager hangar)
+   private static HashSet<ShipDTO> GetAllShipDTOs(IHangarManager hangar)
    {
       // Assuming ShipDTO has a constructor that takes the ship type from hangar.
       // Convert the collection of ships to HashSet<ShipDTO>.

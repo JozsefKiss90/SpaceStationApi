@@ -23,7 +23,6 @@ public class ShipService : IShipService
     private readonly IMissionFactory _missionFactory;
     private readonly ILevelService _levelService;
     private readonly IMissionRepository _missionRepository;
-    private IMinerShipManager _minerShipManager;
     
     public ShipService(
         UserManager<UserEntity> userManager,
@@ -32,8 +31,7 @@ public class ShipService : IShipService
         IShipManagerFactory shipManagerFactory,
         IMissionFactory missionFactory,
         ILevelService levelService,
-        IMissionRepository missionRepository,
-        IMinerShipManager minerShipManager
+        IMissionRepository missionRepository
         )
     {
         _userManager = userManager;
@@ -43,7 +41,6 @@ public class ShipService : IShipService
         _levelService = levelService;
         _missionRepository = missionRepository;
         _spaceStationRepository = spaceStationRepository;
-        _minerShipManager = minerShipManager;
     }
 
     public async Task<SpaceShip> GetByIdAsync(long id)
@@ -110,26 +107,29 @@ public class ShipService : IShipService
             throw new InvalidOperationException("User not found"); 
         } 
 
-        SpaceShip spaceShip;
+        ISpaceShipManager spaceShipManager;
         if (newShip.type == ShipType.MINER)
         {
-            spaceShip = _minerShipManager.CreateNewShip(_levelService, newShip.name, newShip.color); //still null
+            var minerShip = MinerShip.CreateNewMinerShip(_levelService, newShip.name, newShip.color);
+            spaceShipManager = _shipManagerFactory.GetSpaceShipManager(minerShip);
         } 
         else if (newShip.type == ShipType.SCOUT)
         { 
-            spaceShip = ScoutShipManager.CreateNewScoutShip(_levelService, newShip.name, newShip.color);
+            var scoutShip = ScoutShip.CreateNewScoutShip(_levelService, newShip.name, newShip.color);
+            spaceShipManager = _shipManagerFactory.GetSpaceShipManager(scoutShip);
         } 
         else 
         {
             throw new Exception("Ship type not recognized");
         }
 
-        spaceShip = await _spaceShipRepository.CreateAsync(spaceShip); 
-        //had to move currentUser and Id assigment down
+        var spaceShip = spaceShipManager.GetShip();
         spaceShip.User = currentUser;
         spaceShip.UserId = currentUser.Id;
-        return spaceShip; 
+
+        return await _spaceShipRepository.CreateAsync(spaceShip); 
     }
+
     
     public async Task<SpaceShip> UpdateAsync(SpaceShip ship)
     {
@@ -154,8 +154,6 @@ public class ShipService : IShipService
 
         return spaceShipManager.GetDetailedDTO();
     }
-    
-    
 
     public async Task<bool> DeleteShipByIdAsync(long id)
     {

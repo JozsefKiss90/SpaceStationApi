@@ -56,9 +56,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IMissionFactory, MissionFactory>();
     services.AddScoped<IShipManagerFactory, ShipManagerFactory>();
     services.AddScoped<ISpaceStationManager, SpaceStationManager>();
-    services.AddScoped<IHangarManager,  HangarManager>();
-    services.AddScoped<ISpaceShipManager, MinerShipManager>();
-    services.AddScoped<ISpaceShipManager, ScoutShipManager>();
+    services.AddScoped<IHangarManager, HangarManager>();
 
    /* services.AddDbCo  ntext<DBContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
