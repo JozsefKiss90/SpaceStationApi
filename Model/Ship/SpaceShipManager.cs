@@ -7,7 +7,6 @@ using MissionNS = SpaceShipAPI.Model.Mission;
 
 namespace SpaceShipAPI.Model.Ship;
 
-
 public abstract class SpaceShipManager : ISpaceShipManager
 {
     protected readonly ILevelService levelService;

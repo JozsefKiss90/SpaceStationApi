@@ -5,6 +5,7 @@ using SpaceShipAPI.Model.DTO.MissionDTOs;
 using SpaceShipAPI.Model.Mission;
 using SpaceShipAPI.Model.Ship;
 
+namespace SpaceShipAPI.Model.Mission;
 public abstract class MissionManager
 {
     protected readonly Mission mission;
@@ -134,7 +135,7 @@ public abstract class MissionManager
         PushNewEvent(travelEvent);
     }
     
-    protected static long CalculateTravelDurationInSecs(ISpaceShipManager ship, int distanceFromBase)
+    protected static long CalculateTravelDurationInSecs(SpaceShipManager ship, int distanceFromBase)
     {
         double speedInDistancePerHour = ship.GetSpeed();
         int hourToSec = 3600; 

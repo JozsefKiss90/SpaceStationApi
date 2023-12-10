@@ -98,7 +98,7 @@ public class ShipService : IShipService
         }
 
         var spaceShipManager = _shipManagerFactory.GetSpaceShipManager(ship);
-        UpdateMissionIfExists(spaceShipManager);
+        await UpdateMissionIfExists(ship);
         return spaceShipManager.GetDetailedDTO();
     }
 
@@ -174,13 +174,15 @@ public class ShipService : IShipService
         return true;
     }
 
-    public async Task UpdateMissionIfExists(ISpaceShipManager spaceShipManager)
+    public async Task UpdateMissionIfExists(SpaceShip ship)
     {
-        var currentMission = spaceShipManager.GetCurrentMission();
+        ISpaceShipManager shipManager = _shipManagerFactory.GetSpaceShipManager(ship);
+
+        var currentMission = shipManager.GetCurrentMission();
         if (currentMission != null)
         {
             var missionManager = _missionFactory.GetMissionManager(currentMission);
-            missionManager.SetShipManager(spaceShipManager);
+            missionManager.SetShipManager(shipManager);
             if (missionManager.UpdateStatus())
             {
                 await _missionRepository.UpdateAsync(currentMission);

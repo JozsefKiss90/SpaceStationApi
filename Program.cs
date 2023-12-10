@@ -7,9 +7,13 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SpaceshipAPI;
 using SpaceShipAPI.Database;
+using SpaceShipAPI.Model.Mission;
+using SpaceShipAPI.Model.Ship;
+using SpaceShipAPI.Model.Ship.ShipParts;
 using SpaceShipAPI.Repository;
 using SpaceShipAPI.Services;
 using SpaceShipAPI.Services.Authentication;
+using SpaceshipAPI.Spaceship.Model.Station;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,10 +53,14 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IShipService, ShipService>();
     services.AddScoped<ISpaceStationService, SpaceStationService>();
     services.AddScoped<ILevelService, LevelService>();
-    services.AddScoped<SpaceShipAPI.Model.Ship.ShipManagerFactory>();
-    services.AddScoped<SpaceShipAPI.Model.Mission.MissionFactory>();
+    services.AddScoped<IMissionFactory, MissionFactory>();
+    services.AddScoped<IShipManagerFactory, ShipManagerFactory>();
+    services.AddScoped<ISpaceStationManager, SpaceStationManager>();
+    services.AddScoped<IHangarManager,  HangarManager>();
+    services.AddScoped<ISpaceShipManager, MinerShipManager>();
+    services.AddScoped<ISpaceShipManager, ScoutShipManager>();
 
-   /* services.AddDbContext<DBContext>(options =>
+   /* services.AddDbCo  ntext<DBContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
     services.AddDbContext<UserContext>(options =>
@@ -194,3 +202,4 @@ async Task CreateAdminIfNotExists()
         }
     }
 }
+public partial class Program { }

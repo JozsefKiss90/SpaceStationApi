@@ -1,5 +1,4 @@
 ﻿using SpaceshipAPI.Model.Ship;
-using SpaceShipAPI.Repository;
 using SpaceShipAPI.Services;
 
 namespace SpaceShipAPI.Model.Ship;
@@ -13,7 +12,7 @@ public class ShipManagerFactory : IShipManagerFactory
         this.levelService = levelService;
     }
 
-    public ISpaceShipManager  GetSpaceShipManager(SpaceShip ship)
+    public ISpaceShipManager GetSpaceShipManager(SpaceShip ship)
     {
         switch (ship)
         {

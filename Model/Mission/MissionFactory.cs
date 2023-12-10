@@ -8,10 +8,10 @@ using System;
 
 public class MissionFactory : IMissionFactory
 {
-    private readonly ShipManagerFactory _shipManagerFactory;
+    private readonly IShipManagerFactory _shipManagerFactory;
     protected readonly Random random;
     
-    public MissionFactory(ShipManagerFactory shipManagerFactory)
+    public MissionFactory(IShipManagerFactory shipManagerFactory)
     {
         _shipManagerFactory = shipManagerFactory;
     }

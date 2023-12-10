@@ -1,4 +1,6 @@
-﻿namespace SpaceShipAPI.Model.Ship.ShipParts;
+﻿using SpaceShipAPI.Model.Mission;
+
+namespace SpaceShipAPI.Model.Ship.ShipParts;
 
 public interface IMissionFactory
 {

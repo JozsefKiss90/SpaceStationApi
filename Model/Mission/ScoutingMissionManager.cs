@@ -8,7 +8,7 @@ public class ScoutingMissionManager : MissionManager
 {
     private LocationDataGenerator locationDataGenerator;
 
-    public ScoutingMissionManager(Mission mission, Random random, SpaceShipManager spaceShipManager, LocationDataGenerator locationDataGenerator) 
+    public ScoutingMissionManager(Mission mission, Random random, ScoutShipManager spaceShipManager, LocationDataGenerator locationDataGenerator) 
         : base(mission, random, spaceShipManager)
     {
         this.locationDataGenerator = locationDataGenerator;
