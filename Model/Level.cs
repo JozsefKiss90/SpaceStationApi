@@ -30,11 +30,8 @@ public class Level
     {
         Costs = new HashSet<LevelCost>();
     }
-
-    // Additional constructors and methods can be added as needed
 }
 
-// Additional entity to represent the mapping
 public class LevelCost
 {
     [Key]

@@ -17,7 +17,7 @@ public abstract class AbstractStorageManager : Upgradeable
         : base(levelService, type, level)
     {
         int totalResources = storedResources.Sum(sr => sr.Amount);
-        if (totalResources > CurrentLevel.Effect)
+        if (totalResources > CurrentLevel.Effect + 1)
         {
             throw new ResourceCapacityExceededException($"Stored resources can't exceed {CurrentLevel.Effect} at this level");
         }

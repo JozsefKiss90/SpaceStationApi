@@ -17,16 +17,30 @@ namespace SpaceshipAPI.Model.Ship
         public int EngineLevel { get; set; }
         public int ShieldLevel { get; set; }
         public int ShieldEnergy { get; set; }
-        
+    
         [ForeignKey("SpaceStationId")] 
         public long? SpaceStationId { get; set; }
         public SpaceStation SpaceStation { get; set; }
-        
+    
         [ForeignKey("UserId")]
         public string? UserId { get; set; }
         public UserEntity User { get; set; }
-        
+    
         [ForeignKey("CurrentMissionId")]
         public Mission? CurrentMission { get; set; }
+
+        protected SpaceShip()
+        {
+        
+        }
+
+        protected SpaceShip(string name, ShipColor color, int engineLevel, int shieldLevel, int shieldEnergy)
+        {
+            Name = name;
+            Color = color;
+            EngineLevel = engineLevel;
+            ShieldLevel = shieldLevel;
+            ShieldEnergy = shieldEnergy;
+        }
     }
 }

@@ -3,8 +3,25 @@ using System.Linq;
 using SpaceShipAPI.Model.DTO.Ship;
 using SpaceshipAPI.Spaceship.Model.Station;
 
-public record HangarDTO(HashSet<ShipDTO> Ships, int Level, int Capacity, int FreeDocks, bool FullyUpgraded);
+namespace SpaceShipAPI.Model.DTO;
 
+public class HangarDTO
+{
+   public HashSet<ShipDTO> Ships { get; init; }
+   public int Level { get; init; }
+   public int Capacity { get; init; }
+   public int FreeDocks { get; set; }  
+   public bool FullyUpgraded { get; init; }
+
+   public HangarDTO(HashSet<ShipDTO> ships, int level, int capacity, int freeDocks, bool fullyUpgraded)
+   {
+      Ships = ships;
+      Level = level;
+      Capacity = capacity;
+      FreeDocks = freeDocks;
+      FullyUpgraded = fullyUpgraded;
+   }
+}
 public class HangarDTOFactory
 {
    public static HangarDTO Create(IHangarManager hangarManager)
@@ -20,8 +37,7 @@ public class HangarDTOFactory
 
    private static HashSet<ShipDTO> GetAllShipDTOs(IHangarManager hangar)
    {
-      // Assuming ShipDTO has a constructor that takes the ship type from hangar.
-      // Convert the collection of ships to HashSet<ShipDTO>.
+    
       return hangar.GetAllShips().Select(ship => new ShipDTO(ship)).ToHashSet();
    }
 }

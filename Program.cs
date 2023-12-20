@@ -14,12 +14,26 @@ using SpaceShipAPI.Repository;
 using SpaceShipAPI.Services;
 using SpaceShipAPI.Services.Authentication;
 using SpaceshipAPI.Spaceship.Model.Station;
+using SpaceShipAPI.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var logger = builder.Services.BuildServiceProvider().GetService<ILogger<Program>>();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
+
 ConfigureServices(builder.Services);
 var app = builder.Build();
+using var scope = app.Services.CreateScope();
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+    LevelSeedData.Seed(dbContext);
+}
+
 ConfigurePipeline(app);
 AddRoles();
 AddAdmin();
@@ -63,12 +77,23 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddDbContext<UserContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));*/
-    
-    services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+   if (!builder.Environment.IsEnvironment("Testing")) 
+   {
+       services.AddDbContext<AppDbContext>(options =>
+           options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+               .LogTo(Console.WriteLine, LogLevel.Information));
+   }
     //// "DefaultConnection": "Host=localhost;Database=spaceship;Username=postgres;Password=postgres;Include Error Detail=true;"
     ///     "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=spaceship;User Id=sa;Password=myStrong(!)Password;TrustServerCertificate=True;"
-
+  
+    services.AddCors(options =>
+    {
+        options.AddPolicy("CorsPolicy",
+            builder => builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+    });
 }
 
 void ConfigurePipeline(WebApplication app)
@@ -78,12 +103,19 @@ void ConfigurePipeline(WebApplication app)
         app.UseDeveloperExceptionPage();
         app.UseSwagger();
         app.UseSwaggerUI();
+        // Temporarily disable HTTPS redirection in development environment
+        // app.UseHttpsRedirection();
     }
-
+    else
+    {
+        app.UseHttpsRedirection();
+    }
+    app.UseCors("CorsPolicy");
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
+ 
 }
 
 void ConfigureSwagger(IServiceCollection services)
@@ -180,6 +212,10 @@ async Task CreateUserRole(RoleManager<IdentityRole> roleManager)
 
 void AddAdmin()
 {
+    if (app.Environment.IsEnvironment("Testing"))
+    {
+        return;
+    }
     var tAdmin = CreateAdminIfNotExists();
     tAdmin.Wait();
 }

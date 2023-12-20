@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SpaceShipAPI;
 using SpaceShipAPI.Database;
 using SpaceShipAPI.Model.DTO.Ship;
 using SpaceshipAPI.Model.Ship;
+using SpaceShipAPI.Model.Ship;
 
 public class SpaceShipRepository : ISpaceShipRepository
 {
@@ -77,6 +79,14 @@ public class SpaceShipRepository : ISpaceShipRepository
         {
             _context.Remove(spaceShip);
             await _context.SaveChangesAsync();
+        }
+    }
+    
+    public async Task<Dictionary<ResourceType, int>> GetShipCost(ShipType shipType) {
+        if (shipType != null) { 
+            return shipType.GetCost();
+        } else {
+            return null;
         }
     }
     

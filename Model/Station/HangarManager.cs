@@ -60,7 +60,7 @@ public class HangarManager : Upgradeable, IHangarManager
 
     public HashSet<SpaceShip> GetAllShips()
     {
-        return new HashSet<SpaceShip>(shipSet);
+        return new HashSet<SpaceShip>(shipSet); 
     }
 
     public bool HasShipAvailable(SpaceShip ship)

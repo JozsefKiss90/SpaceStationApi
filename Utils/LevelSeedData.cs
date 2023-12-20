@@ -1,17 +1,18 @@
-﻿namespace SpaceShipAPI.Utils;
+﻿using SpaceShipAPI.Database;
+
+namespace SpaceShipAPI.Utils;
 
 using Microsoft.EntityFrameworkCore;
 using SpaceShipAPI.Model;
 
 public static class LevelSeedData
 {
-    public static void Seed(ModelBuilder modelBuilder)
-    {
+    public static void Seed(AppDbContext dbContext)    {
         foreach (UpgradeableType type in Enum.GetValues(typeof(UpgradeableType)))
         {
             for (int level = 1; level <= 5; level++)
             {
-                modelBuilder.Entity<Level>().HasData(
+                dbContext.Levels.Add(
                     new Level
                     {
                         Id = GetLevelId(type, level),

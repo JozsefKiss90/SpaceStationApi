@@ -17,7 +17,7 @@ public class ShieldManager : Upgradeable
         {
             throw new ArgumentException("Shield energy can't be lower than 0");
         }
-        if (currentEnergy > CurrentLevel.Effect) //line 21
+        if (currentEnergy > CurrentLevel.Effect) 
         {
             throw new Exception($"Shield energy can't be higher than {CurrentLevel.Effect} at this level");
         }

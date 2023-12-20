@@ -6,6 +6,7 @@ using SpaceShipAPI.Model.DTO.Ship;
 using SpaceShipAPI.Model.Ship;
 using SpaceshipAPI.Model;
 using Microsoft.AspNetCore.Identity;
+using SpaceshipAPI;
 using SpaceshipAPI.Spaceship.Model.Station;
 
 namespace SpaceShipAPI.Services
@@ -14,7 +15,7 @@ namespace SpaceShipAPI.Services
     {
         Task<SpaceStationDTO> GetBaseByIdAsync(long stationId, ClaimsPrincipal user);
 
-        Task<SpaceStationDTO> CreateAsync(string name, ClaimsPrincipal userPrincipal);
+        Task<SpaceStationDTO> CreateAsync(string name, ClaimsPrincipal user);
 
         Task<bool> AddResourcesAsync(long id, Dictionary<ResourceType, int> resources, ClaimsPrincipal user);
 
@@ -39,5 +40,7 @@ namespace SpaceShipAPI.Services
         Task<Dictionary<ResourceType, int>> GetStoredResourcesAsync(long stationId, ClaimsPrincipal user);
 
         Task<SpaceStation> GetStationByIdAndCheckAccessAsync(long stationId, ClaimsPrincipal user);
+        Task<HangarDTO> UpgradeHangarDockAsync(long stationId, ClaimsPrincipal user);
+        Task DeleteSpaceStationAsync(long spaceStationId);
     }
 }

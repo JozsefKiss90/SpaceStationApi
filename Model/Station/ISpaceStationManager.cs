@@ -28,7 +28,7 @@ namespace SpaceshipAPI.Spaceship.Model.Station
         SpaceStationStorageDTO GetStorageDTO(SpaceStation station);
         HangarDTO GetHangarDTO(SpaceStation station);
         void CreateStorageIfNotExists(SpaceStation station);
-
+        HangarDTO UpdateHangarDTO(HangarDTO hangar);
         void CreateHangarIfNotExists(SpaceStation station);
     }
 }

@@ -11,13 +11,14 @@ namespace SpaceShipAPI.Services
         Task<SpaceShip> GetByIdAsync(long id);
         Task<IEnumerable<ShipDTO>> GetAllShips(ClaimsPrincipal user);
         Task<IEnumerable<ShipDTO>> GetShipsByStationAsync(long stationId, ClaimsPrincipal user);
-        Task<ShipDetailDTO> GetShipDetailsByIdAsync(long id);
-        Task<SpaceShip> CreateShip(NewShipDTO newShip, ClaimsPrincipal userPrincipal);
+        Task<ShipDTO> GetShipDetailsByIdAsync(long id);
+        Task<ShipDTO> CreateShip(NewShipDTO newShip, ClaimsPrincipal userPrincipal);
         Task<SpaceShip> UpdateAsync(SpaceShip ship);
         Task<ShipDetailDTO> UpgradeShipPartAsync(long id, ShipPart part);
         Task<bool> DeleteShipByIdAsync(long id);
         Task UpdateMissionIfExists(SpaceShip ship);
         ShipColor[] getColors();
         Task DeleteAsync(long id);
+        Task<Dictionary<ResourceType, int>> GetShipCost(ShipType shipType);
     }
 }

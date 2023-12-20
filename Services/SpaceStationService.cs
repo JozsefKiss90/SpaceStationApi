@@ -50,7 +50,15 @@ public class SpaceStationService : ISpaceStationService
     
         SpaceStation spaceStation = _spaceStationManager.CreateNewSpaceStation(name);
         spaceStation.User = currentUser;
-
+        spaceStation.StorageLevel = 1;
+        spaceStation.HangarLevel = 1;
+        spaceStation.StoredResources = new List<StoredResource>
+        {
+            new StoredResource { ResourceType = ResourceType.PLUTONIUM, Amount = 0 },
+            new StoredResource { ResourceType = ResourceType.CRYSTAL, Amount = 20 },
+            new StoredResource { ResourceType = ResourceType.SILICONE, Amount = 20 },
+            new StoredResource { ResourceType = ResourceType.METAL, Amount = 50 }
+        }; 
         var createdStation = await _spaceStationRepository.CreateAsync(spaceStation);
         return ConvertToDTO(createdStation);
     }
@@ -84,6 +92,7 @@ public class SpaceStationService : ISpaceStationService
         var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
         
         SpaceShip ship;
+        var userId = _userManager.GetUserId(user);
         if (newShipDTO.type == ShipType.MINER)
         {
             ship = MinerShipManager.CreateNewMinerShip(_levelService, newShipDTO.name, newShipDTO.color);
@@ -98,6 +107,8 @@ public class SpaceStationService : ISpaceStationService
         {
             throw new ArgumentException("Ship type not recognized");
         }
+        
+        ship.UserId = userId;
         
         await _spaceShipRepository.CreateAsync(ship);
         return ship.Id;
@@ -123,6 +134,12 @@ public class SpaceStationService : ISpaceStationService
         var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
         return _spaceStationManager.GetHangarDTO(station);
     }
+    
+    /*public async Task<HangarDTO> GetStationHangarAsync(long stationId, ClaimsPrincipal user)
+    {
+        var hangar = await UpgradeHangarDockAsync(stationId, user);
+        return hangar;
+    }*/
     
     public async Task<bool> UpgradeStorageAsync(long stationId, ClaimsPrincipal user)
     {
@@ -151,6 +168,14 @@ public class SpaceStationService : ISpaceStationService
             return true;
         }
         return false;
+    }
+
+    public async Task<HangarDTO> UpgradeHangarDockAsync(long stationId, ClaimsPrincipal user)
+    {
+        var station = await GetStationByIdAndCheckAccessAsync(stationId, user);
+        var oldHangar = await GetStationHangarAsync(stationId, user);
+        var newHangar = _spaceStationManager.UpdateHangarDTO(oldHangar);
+        return newHangar;
     }
     
     public async Task<bool> MoveResourceFromShipToStationAsync(long stationId, long shipId, Dictionary<ResourceType, int> resources, ClaimsPrincipal user)
@@ -184,9 +209,9 @@ public class SpaceStationService : ISpaceStationService
             throw new KeyNotFoundException($"No station found with id {stationId}");
         }
 
-        var currentUser = GetCurrentUser(user);
-        var isAdmin = user.IsInRole("Admin"); 
-        if (!isAdmin && currentUser.Id.ToString() != station.User.Id)
+        var currentUser = await GetCurrentUser(user);
+       // var isAdmin = user.IsInRole("Admin"); 
+        if (currentUser.Id.ToString() != station.User.Id)
         {
             throw new UnauthorizedAccessException("You don't have authority to access this station");
         }
@@ -219,4 +244,10 @@ public class SpaceStationService : ISpaceStationService
             _spaceStationManager.GetStorageDTO(station)
         );
     }
+    
+    public async Task DeleteSpaceStationAsync(long spaceStationId)
+    {
+       await _spaceStationRepository.DeleteAsync(spaceStationId);
+    }
+
 }

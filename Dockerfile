@@ -5,16 +5,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["SpaceShip/SpaceShip.csproj", "SpaceShip/"]
-RUN dotnet restore "SpaceShip/SpaceShip.csproj"
+COPY ["SpaceShipAPI.csproj", "./"]
+RUN dotnet restore "SpaceShipAPI.csproj"
 COPY . .
-WORKDIR "/src/SpaceShip"
-RUN dotnet build "SpaceShip.csproj" -c Release -o /app/build
+WORKDIR "/src"
+RUN dotnet build "SpaceShipAPI.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "SpaceShip.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "SpaceShipAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "SpaceShip.dll"]
+ENTRYPOINT ["dotnet", "SpaceShipAPI.dll"]

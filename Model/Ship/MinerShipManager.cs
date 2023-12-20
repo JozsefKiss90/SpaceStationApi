@@ -38,7 +38,7 @@ public class MinerShipManager : SpaceShipManager, IMinerShipManager
             Color = color,
             EngineLevel = 1,
             ShieldLevel = 1,
-            ShieldEnergy = new ShieldManager(levelService, 1, 0).GetMaxEnergy(),
+            ShieldEnergy = new ShieldManager(levelService, 1, 1).GetMaxEnergy(),
             DrillLevel = 1,
             StorageLevel = 1,
             StoredResources = new List<StoredResource>(),
@@ -152,10 +152,12 @@ public class MinerShipManager : SpaceShipManager, IMinerShipManager
     {
         if (storage == null)
         {
-            var storedResourcesDictionary = ResourceUtility.ConvertToDictionary(minerShip.StoredResources);
+            var storedResources = minerShip.StoredResources ?? new List<StoredResource>();
+            var storedResourcesDictionary = ResourceUtility.ConvertToDictionary(storedResources);
             storage = new ShipStorageManager(levelService, minerShip.StorageLevel, storedResourcesDictionary);
         }
     }
+
 
     private void CreateDrillIfNotExists()
     {

@@ -86,7 +86,7 @@ public class ShipService : IShipService
         }
     }
 
-    public async Task<ShipDetailDTO> GetShipDetailsByIdAsync(long id)
+    public async Task<ShipDTO> GetShipDetailsByIdAsync(long id)
     {
         var ship = await _spaceShipRepository.GetByIdAsync(id);
         if (ship == null)
@@ -99,7 +99,7 @@ public class ShipService : IShipService
         return spaceShipManager.GetDetailedDTO();
     }
 
-    public async Task<SpaceShip> CreateShip(NewShipDTO newShip, ClaimsPrincipal userPrincipal)
+    public async Task<ShipDTO> CreateShip(NewShipDTO newShip, ClaimsPrincipal userPrincipal)
     {
         var currentUser = await _userManager.GetUserAsync(userPrincipal);
         if (currentUser == null)
@@ -110,7 +110,7 @@ public class ShipService : IShipService
         ISpaceShipManager spaceShipManager;
         if (newShip.type == ShipType.MINER)
         {
-            var minerShip = MinerShip.CreateNewMinerShip(_levelService, newShip.name, newShip.color);
+            var minerShip = MinerShip.CreateNewMinerShip(_levelService, newShip.name, newShip.color); 
             spaceShipManager = _shipManagerFactory.GetSpaceShipManager(minerShip);
         } 
         else if (newShip.type == ShipType.SCOUT)
@@ -124,10 +124,11 @@ public class ShipService : IShipService
         }
 
         var spaceShip = spaceShipManager.GetShip();
-        spaceShip.User = currentUser;
+        spaceShip.User = currentUser;  
         spaceShip.UserId = currentUser.Id;
-
-        return await _spaceShipRepository.CreateAsync(spaceShip); 
+        var createdShip = await _spaceShipRepository.CreateAsync(spaceShip); 
+        var shipDto = new ShipDTO(createdShip);
+        return shipDto;
     }
 
     
@@ -223,5 +224,14 @@ public class ShipService : IShipService
     private async Task<UserEntity> GetCurrentUserAsync(ClaimsPrincipal userPrincipal)
     {
         return await _userManager.GetUserAsync(userPrincipal);
+    }
+    
+    public async Task<Dictionary<ResourceType, int>> GetShipCost(ShipType shipType) {
+        if (shipType != null)
+        {
+            return await _spaceShipRepository.GetShipCost(shipType);
+        } else {
+            return null;
+        }
     }
 }

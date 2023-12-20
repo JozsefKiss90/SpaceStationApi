@@ -10,11 +10,18 @@ public static class ResourceUtility
 
         foreach (var storedResource in storedResources)
         {
-            dictionary[storedResource.ResourceType] = storedResource.Amount;
+            if (dictionary.ContainsKey(storedResource.ResourceType))
+            {
+                dictionary[storedResource.ResourceType] += storedResource.Amount;
+            }
+            else
+            {
+                dictionary[storedResource.ResourceType] = storedResource.Amount;
+            }
         }
         return dictionary;
     }
-    
+
     public static ICollection<StoredResource> MapToStoredResources(IDictionary<ResourceType, int> storedResources)
     {
         var result = new List<StoredResource>();

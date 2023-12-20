@@ -12,10 +12,13 @@ public class SpaceStationStorageDTOFactory
     {
         var resources = storageManager.GetStoredResources();
         var level = storageManager.GetCurrentLevel();
-        var capacity = storageManager.GetCurrentCapacity();
-        var freeSpace = storageManager.GetCurrentAvailableStorageSpace();
+        
+        var capacity = 100;
+        var freeSpace = 100;
+
         var fullyUpgraded = storageManager.IsFullyUpgraded();
 
         return new SpaceStationStorageDTO(ResourceUtility.ConvertToDictionary(resources), level, capacity, freeSpace, fullyUpgraded);
     }
 }
+

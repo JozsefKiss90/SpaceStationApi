@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SpaceShipAPI;
 using SpaceShipAPI.Model.DTO.Ship;
 using SpaceshipAPI.Model.Ship;
+using SpaceShipAPI.Model.Ship;
 
 public interface ISpaceShipRepository : IDisposable
 {
@@ -13,4 +15,5 @@ public interface ISpaceShipRepository : IDisposable
     Task<SpaceShip> CreateAsync(SpaceShip spaceShip);
     Task<SpaceShip> UpdateAsync(SpaceShip spaceShip);
     Task DeleteAsync(long id);
+    Task<Dictionary<ResourceType, int>> GetShipCost(ShipType shipType);
 }

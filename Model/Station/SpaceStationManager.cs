@@ -138,6 +138,12 @@ public class SpaceStationManager : ISpaceStationManager
         return true;
     }
     
+    public HangarDTO UpdateHangarDTO(HangarDTO hangar)
+    {
+        hangar.FreeDocks += 1;
+        return hangar;
+    }
+    
     public bool AddResourcesFromShip(MinerShipManager shipManager, Dictionary<ResourceType, int> resources, SpaceStation station) {
         if (HasShipAvailable(shipManager.GetShip(), station) && shipManager.HasResourcesInStorage(resources))
         { 
@@ -180,7 +186,8 @@ public class SpaceStationManager : ISpaceStationManager
 
     public HangarDTO GetHangarDTO(SpaceStation station) { 
         CreateHangarIfNotExists(station);
-        return HangarDTOFactory.Create(hangar);
+        HangarDTO newHangar = HangarDTOFactory.Create(hangar);
+        return newHangar;
     }
 
     public void CreateHangarIfNotExists(SpaceStation station)

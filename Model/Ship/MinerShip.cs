@@ -11,8 +11,8 @@ namespace SpaceShipAPI.Model.Ship
     {
         public int DrillLevel { get; set; }
         public int StorageLevel { get; set; }
-        public ICollection<StoredResource> StoredResources { get; set; }
-
+        public ICollection<StoredResource>? StoredResources { get; set; }
+        
         public static MinerShip CreateNewMinerShip(ILevelService levelService, string name, ShipColor color)
         {
             return new MinerShip

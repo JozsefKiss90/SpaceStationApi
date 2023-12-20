@@ -1,21 +1,31 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SpaceshipAPI;
+using SpaceShipAPI.Model.DTO;
 using SpaceShipAPI.Model.DTO.Ship;
 using SpaceShipAPI.Services;
 using SpaceshipAPI.Spaceship.Model.Station;
 
 namespace SpaceShipAPI.Controllers
 {
+    [Route("api/v1/base/")]
     [ApiController]
-    [Route("api/v1/base")]
     [Authorize]
     public class SpaceStationController : ControllerBase
     {
         private readonly ISpaceStationService _stationService;
+        private readonly ILogger<SpaceStationController> _logger;
+        private readonly UserManager<UserEntity> _userManager;
 
-        public SpaceStationController(ISpaceStationService stationService)
+        public SpaceStationController(
+            ISpaceStationService stationService, 
+            ILogger<SpaceStationController> logger,
+            UserManager<UserEntity> userManager)
         {
-            _stationService = stationService;
+            _stationService = stationService ?? throw new ArgumentNullException(nameof(stationService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _userManager = userManager;
         }
 
         [HttpGet("{baseId}")]
@@ -33,19 +43,33 @@ namespace SpaceShipAPI.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> CreateAsync(String name)
+        public async Task<IActionResult> CreateAsync([FromBody] SpaceStationCreationDTO dto)
         {
-            if (User == null || !User.Identity.IsAuthenticated)
+            var name = dto.Name;
+            _logger.LogInformation("CreateAsync called with name: {Name}", name);
+            var user = await _userManager.GetUserAsync(User);
+            try
             {
-                return Unauthorized();
-            }
+                if (User == null || !User.Identity.IsAuthenticated)
+                {
+                    _logger.LogWarning("User is not authenticated");
+                    return Unauthorized();
+                }
 
-            var SpaceStation = await _stationService.CreateAsync(name, User);
-            return Ok(SpaceStation);
-        }
+                var spaceStation = await _stationService.CreateAsync(name, User);
+                _logger.LogInformation("Space station created with ID: {Id}", spaceStation.Id);
+                return Ok(spaceStation);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in CreateAsync");
+                return StatusCode(500, ex.Message);
+            }
+        } 
+
 
         [HttpPost("{baseId}/add/resources")]
-        [Authorize(Roles = "Admin")] // Restricts access to Admin role
+        //[Authorize(Roles = "Admin")] 
         public async Task<IActionResult> AddResources(long baseId, [FromBody] Dictionary<ResourceType, int> resources)
         {
             var result = await _stationService.AddResourcesAsync(baseId, resources, User);
@@ -98,7 +122,7 @@ namespace SpaceShipAPI.Controllers
         [HttpGet("{baseId}/hangar")]
         public async Task<IActionResult> GetStationHangar(long baseId)
         {
-            var hangarDTO = await _stationService.GetStationHangarAsync(baseId, User);
+            var hangarDTO = await _stationService.UpgradeHangarDockAsync(baseId, User);
             return Ok(hangarDTO);
         }
 
@@ -114,6 +138,13 @@ namespace SpaceShipAPI.Controllers
         {
             var result = await _stationService.UpgradeHangarAsync(baseId, User);
             return Ok(result);
+        }
+
+        [HttpDelete("{baseId}")]
+        public async Task<IActionResult> DeleteStation(long baseId)
+        {
+            await _stationService.DeleteSpaceStationAsync(baseId);
+            return Ok();
         }
     }
 }

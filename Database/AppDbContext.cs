@@ -19,7 +19,6 @@ public class AppDbContext : IdentityDbContext<UserEntity>
     public DbSet<StoredResource> StoredResources { get; set; }
     public DbSet<Level> Levels { get; set; }
     public DbSet<Mission> Missions { get; set; }
-
     public DbSet<Location> Locations { get; set; }
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -61,6 +60,6 @@ public class AppDbContext : IdentityDbContext<UserEntity>
             .HasValue<MiningMission>("Mining")
             .HasValue<ScoutingMission>("Scouting");
         
-        LevelSeedData.Seed(builder);
+       // LevelSeedData.Seed(builder);
     }
 }

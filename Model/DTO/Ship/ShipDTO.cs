@@ -11,14 +11,14 @@ namespace SpaceShipAPI.Model.DTO.Ship
         public ShipColor Color { get;  set; }
         public ShipType Type { get;  set; }
        
-        public long MissionId { get;  set; }
+        public long? MissionId { get;  set; }
 
         public ShipDTO(SpaceShip ship)
             : this(ship.Id, ship.Name, ship.Color, GetShipType(ship), GetCurrentMissionId(ship.CurrentMission))
         {
         }  
 
-        public ShipDTO(long id, string name, ShipColor color, ShipType type, long missionId)
+        public ShipDTO(long id, string name, ShipColor color, ShipType type, long? missionId)
         {
             Id = id;
             Name = name;
@@ -26,6 +26,7 @@ namespace SpaceShipAPI.Model.DTO.Ship
             Type = type;
             MissionId = missionId;
         }
+
         
         public ShipDTO()
         {
@@ -47,9 +48,9 @@ namespace SpaceShipAPI.Model.DTO.Ship
             }
         }
         
-        private static long GetCurrentMissionId(Model.Mission.Mission mission)
+        private static long? GetCurrentMissionId(Model.Mission.Mission mission)
         {
-            return mission?.Id ?? 0L;
+            return mission?.Id;
         }
     }
 }

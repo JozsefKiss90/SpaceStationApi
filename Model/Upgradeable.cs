@@ -13,6 +13,7 @@ public abstract class Upgradeable
     {
         this.levelService = levelService;
         CurrentLevel = levelService.GetLevelByTypeAndLevel(type, level);
+        CurrentLevel.Effect = 100; //line 16
     }
 
     public bool IsFullyUpgraded()

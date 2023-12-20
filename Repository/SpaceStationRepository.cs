@@ -64,10 +64,16 @@ public class SpaceStationRepository : ISpaceStationRepository
 
     public async Task DeleteAsync(long id) 
     {
-        var spaceStation = await _context.SpaceStation.FindAsync(id);
+        var spaceStation = await _context.SpaceStation
+            .Include(s => s.StoredResources)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
         if (spaceStation != null)
         {
+            _context.StoredResources.RemoveRange(spaceStation.StoredResources);
+
             _context.SpaceStation.Remove(spaceStation);
+
             await _context.SaveChangesAsync();
         }
     }
